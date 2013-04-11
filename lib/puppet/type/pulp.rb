@@ -1,8 +1,9 @@
 Puppet::Type.newtype(:pulp)do
 	@doc = "Interface to manage pulp from within puppet"
 
-	feature :create_repository,
-								"The provider" 
+	feature :create_repository do 
+		desc "Create repository"
+	end
 
 	newparam :repoid, :namevar => true do
 		desc "Repository id"
