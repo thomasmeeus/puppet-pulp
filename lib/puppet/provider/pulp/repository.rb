@@ -1,9 +1,10 @@
-Puppet::Type.type(:pulp).provide(:repository) do
 require 'rubygems'
 require 'net/http'
 require 'net/https'
 require 'uri'
 require 'json'
+
+Puppet::Type.type(:pulp).provide(:repository) do
 
   def exists?
     begin
