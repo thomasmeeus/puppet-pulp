@@ -18,3 +18,9 @@ _yardoc
 doc/
 *.swp
 .*.swp
+
+.DS_Store
+
+.project
+
+metadata.json
