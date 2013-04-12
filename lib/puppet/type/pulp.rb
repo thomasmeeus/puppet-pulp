@@ -1,9 +1,7 @@
 Puppet::Type.newtype(:pulp)do
 	@doc = "Interface to manage pulp from within puppet"
-
-	feature :create_repository do 
-		desc "Create repository"
-	end
+  
+  ensurable
 
 	newparam :repoid, :namevar => true do
 		desc "Repository id"
@@ -17,18 +15,24 @@ Puppet::Type.newtype(:pulp)do
 		desc "Repository description"
 	end
 
-	newparam :lastsync do
-		desc "Last syncronisation date"
-	end
-
 	newparam :onlynewest do 
 		desc "Only newest version op a given package is downloaded"
 		newvalues(:true, :false)
 	end
 
-	newparam :feedcacert do 
-		desc "full path to the CA certificate that should be used to verify the external repo server's SSL certificate"
+	newparam :feed do 
+		desc "full path to the feed that acts as source "
+    validate do \value\
+      unless Pathname.new(value).avsolute? ||
+          URI.parse(value).is_a?(URI::HTTP)
+        fail("Invalid source #{value}")
+      end
+    end
 	end
+
+  newparam :feedcavert do
+    desc "full path to the certificate CA to use for authentication"
+  end
 
 	newparam :feedcert do
 		desc "full path to the certificate to use for authentication when accessing the external feed"
