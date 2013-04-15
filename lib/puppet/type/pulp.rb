@@ -1,6 +1,13 @@
 Puppet::Type.newtype(:pulp)do
 	@doc = "Interface to manage pulp from within puppet"
   
+  feature :createable, "The provider can create a repository",
+    :methods => [:create]
+  feature :updateble, "The provider can update the settings of a repository",
+    :methods => [:update]
+  feature :syncable, "The provider can synchronize a repository"
+    :methods => [:sync]
+  
   ensurable
 
 	newparam :repoid, :namevar => true do
@@ -23,7 +30,7 @@ Puppet::Type.newtype(:pulp)do
 	newparam :feed do 
 		desc "full path to the feed that acts as source "
     validate do \value\
-      unless Pathname.new(value).avsolute? ||
+      unless Pathname.new(value).absolute? ||
           URI.parse(value).is_a?(URI::HTTP)
         fail("Invalid source #{value}")
       end
