@@ -36,6 +36,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     #fail "Couldn't create repo: #{res.code} #{res.body}" unless res.kind_of? Net::HTTPSuccess
     if res.code == 200
       #output: the repository was successfully created
+      Puppet.debug("Repository created")
     elsif res.code == 400
       #output: if one or more of the parameters is invalid
       fail("One or more of the parameters is invalid")

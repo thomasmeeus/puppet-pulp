@@ -10,24 +10,29 @@ Puppet::Type.newtype(:pulp)do
   
   ensurable
 
-	newparam :repoid, :namevar => true do
+	newparam(:repoid, :namevar => true) do
 		desc "Repository id"
 	end
 
-	newparam :displayname do
+	newparam(:displayname) do
 		desc "Repository display name"
 	end
 
-	newparam :description do
+	newparam(:description) do
 		desc "Repository description"
 	end
 
-	newparam :onlynewest do 
+	newparam(:onlynewest) do 
 		desc "Only newest version op a given package is downloaded"
 		newvalues(:true, :false)
 	end
 
-	newparam :feed do 
+  newparam(:repotype) do 
+    desc "Descripes witch type of repository you want to create"
+    commands :rpm_repo => "rpm-repo" #Not sure if it's ok
+    defaultto :rpm_repo
+
+	newparam(:feed) do 
 		desc "full path to the feed that acts as source "
     validate do \value\
       unless Pathname.new(value).absolute? ||
@@ -37,15 +42,15 @@ Puppet::Type.newtype(:pulp)do
     end
 	end
 
-  newparam :feedcavert do
+  newparam(:feedcavert) do
     desc "full path to the certificate CA to use for authentication"
   end
 
-	newparam :feedcert do
+	newparam(:feedcert) do
 		desc "full path to the certificate to use for authentication when accessing the external feed"
 	end
 
-	newparam :feedkey do
+	newparam(:feedkey) do
 		desc "full path to the private key for feed_cert"
 	end
 
