@@ -9,6 +9,8 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def exists?
     begin
       #code to check is the repo exists
+      @repoId = :repoid
+      url = URI.parse("https://pulpserver2.example.com/pulp/api/v2/repositories/")
       jdoc = JSON.parse(res.body)
       response = jdoc.fetch(:description)
     rescue Puppet::ExecutionFailure => e
@@ -21,6 +23,9 @@ Puppet::Type.type(:pulp).provide(:repository) do
             "id" => :name,
 }.to_json
 
+    pathvar = '/pulp/api/v2/repositories/'
+
+    url = URI::HTTP.build({:host =>  :hostname, :path => pathvar})
 
 
 

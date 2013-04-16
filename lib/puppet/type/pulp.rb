@@ -29,8 +29,8 @@ Puppet::Type.newtype(:pulp)do
 
   newparam(:repotype) do 
     desc "Descripes witch type of repository you want to create"
-    commands :rpm_repo => "rpm-repo" #Not sure if it's ok
-    defaultto :rpm_repo
+    defaultto('rpm_repo')
+  end
 
 	newparam(:feed) do 
 		desc "full path to the feed that acts as source "
@@ -42,7 +42,7 @@ Puppet::Type.newtype(:pulp)do
     end
 	end
 
-  newparam(:feedcavert) do
+  newparam(:feedcacert) do
     desc "full path to the certificate CA to use for authentication"
   end
 
@@ -54,4 +54,7 @@ Puppet::Type.newtype(:pulp)do
 		desc "full path to the private key for feed_cert"
 	end
 
+  newparam(:hostname) do
+    desc "hostname of the pulp-server"
+    defaultto :fqdn
 end
