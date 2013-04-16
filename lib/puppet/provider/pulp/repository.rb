@@ -9,7 +9,10 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def exists?
     begin
       #code to check is the repo exists
-      @repoId = :repoid
+      #@repoId = :repoid
+      pathvar = '/pulp/api/v2/repositories/' + :repoid + '/'
+      
+
       url = URI.parse("https://pulpserver2.example.com/pulp/api/v2/repositories/")
       jdoc = JSON.parse(res.body)
       response = jdoc.fetch(:description)
@@ -17,27 +20,56 @@ Puppet::Type.type(:pulp).provide(:repository) do
       false
     end
   end
-
-  def create
-@toSend = { 
-            "id" => :name,
-}.to_json
-
-    pathvar = '/pulp/api/v2/repositories/'
-
-    url = URI::HTTP.build({:host =>  :hostname, :path => pathvar})
-
-
-
-    url = URI.parse("https://pulpserver2.example.com/pulp/api/v2/repositories/")
-    req = Net::HTTP::Post.new(url.path, initheader = {'Content-Type' =>'application/json'})
-    req.basic_auth 'test-user', 'test'
-    req.body = "#{@toSend}"
-    sock = Net::HTTP.new(url.host, url.port)
+  
+  def query (pathvar,vars)
+    url = URI::HTTP.build({:host => hostname, :path => varpath})
+    req = postquery(url)
+    req.basic_auth :user :password
+    req.body = "#{:vars}"
+    sock Net::HTTP.new(url.host, url.port)
     sock.use_ssl = true
     sock.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    res = sock.start {|http| http.request(req) }
+    res = sock.start {|http| http.request(req)}
+    return res
+  end
+
+  def postquery (url)
+    req = Net::HTTP::Post.new(url.path, initheader = {'Content-Type' =>'application/json'})
+    return req
+  end
+
+  def putquery (url)
+    req = Net::HTTP::Put.new(url.path, initheader = {'Content-Type' =>'application/json'})
+  end
+
+  def getquery (url)
+    req = Net::HTTP::Get.new(url.path, initheader = {'Content-Type' =>'application/json'})
+  end
+
+  def deletequery (url)
+    req = Net::HTTP::Delete.new(url.path, initheader = {'Content-Type' =>'application/json'})
+  end
+
+
+
+  def create
+    @toSend = { 
+      "id" => :name,
+
+    }.to_json
+
+    sendHash = Hash.new
+    sendHash["id"] = :repoid
+    sendHash["display_name"] = :displayname if :displayname
+    sendHash["description"] = :description if :description
+    sendHash["notes"] = Hash.new
+    sendHash["notes"]["_repo-type"] = :repotype
+    #TODO add extra note fields
+    sendHash.to_json
+    pathvar = '/pulp/api/v2/repositories/'
+
     
+
     #fail "Couldn't create repo: #{res.code} #{res.body}" unless res.kind_of? Net::HTTPSuccess
     if res.code == 200
       #output: the repository was successfully created
