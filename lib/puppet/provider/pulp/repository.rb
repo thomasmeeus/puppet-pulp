@@ -44,20 +44,23 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
 
   def putquery (url)
+    url = buildurl(pathvar)
     req = Net::HTTP::Put.new(url.path, initheader = {'Content-Type' =>'application/json'})
     res = query(req, url, vars)
     return res
   end
 
   def getquery (url)
+    url = buildurl(pathvar)
     req = Net::HTTP::Get.new(url.path, initheader = {'Content-Type' =>'application/json'})
     res = query(req, url, vars)
     return res
   end
 
-  def deletequery (url)
+  def deletequery (pathvar)
+    url = buildurl(pathvar)
     req = Net::HTTP::Delete.new(url.path, initheader = {'Content-Type' =>'application/json'})
-    res = query(req, url, vars)
+    res = query(req, url)
     return res
   end
 
@@ -113,21 +116,12 @@ Puppet::Type.type(:pulp).provide(:repository) do
 
   def destroy
     #code to delete a repo
+    pathvar = '/pulp/api/v2/repositories/' + :repoid '/'
+    res = deletequery(pathvar)
     if res.code ==202
       #output 
     end
   end
-  def executequery(url, request, toSend)
-    @uri = url.is_a?(::URI) ? url : ::URI.parse(url)
-    req = Net::HTTP::@request.new(url.path, initheader = {'Content-Type' =>'application/json'})
-    req.basic_auth 'admin', 'admin' #TODO refactor this
-    req.body = "#{@toSend}"
-    sock = Net::HTTP.new(uri.host, uri.port)
-    sock.use_ssl = true
-    sock.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    res = sock.start {|http| http.request(req) }
-    return res
-  end
-
+  
 end
 
