@@ -7,18 +7,17 @@ require 'json'
 Puppet::Type.type(:pulp).provide(:repository) do
 
   def exists?
-    begin
+  false
+  #begin
       #code to check is the repo exists
-      #@repoId = :repoid
-      pathvar = '/pulp/api/v2/repositories/' + :repoid + '/'
-      
+      #pathvar = '/pulp/api/v2/repositories/' + :repoid + '/'
+       
 
-      url = URI.parse("https://pulpserver2.example.com/pulp/api/v2/repositories/")
-      jdoc = JSON.parse(res.body)
-      response = jdoc.fetch(:description)
-    rescue Puppet::ExecutionFailure => e
-      false
-    end
+      #   jdoc = JSON.parse(res.body)
+      #response = jdoc.fetch(:description)
+      #rescue Puppet::ExecutionFailure => e
+      # false
+      #end
   end
   
   def query (req, url, vars)
