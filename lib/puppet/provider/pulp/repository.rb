@@ -64,8 +64,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
     return res
   end
 
-
-
   def create
 
     sendHash = Hash.new
@@ -97,21 +95,22 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
 
   def update
-  @toSend = { 
-    "display_name" => "test1"
-  }.to_json
+    pathvar = '/pulp/api/v2/repositories/' + :repoid '/'
+    res = putquery(pathvar, sendHash)
 
+    if res.code == 200
+      Puppet.debug("The update is executed and succesfull")
+    elsif res.code == 202
+      fail("The update was postponed")
+    elsif res.code == 400
+      fail("One or more of the parameters is invalid")
+    elsif res.code == 400
+      fail("One or more of the parameters is invalid")
+    else 
+      fail("An unexpected error occurred")
+    end
 
-  url = URI.parse("https://pulpserver2.example.com/pulp/api/v2/repositories/tset1/")
-  req = Net::HTTP::Put.new(url.path, initheader = {'Content-Type' =>'application/json'})
-  req.basic_auth 'admin', 'admin'
-  req.body = "#{@toSend}"
-  sock = Net::HTTP.new(url.host, url.port)
-  sock.use_ssl = true
-  sock.verify_mode = OpenSSL::SSL::VERIFY_NONE
-  res = sock.start {|http| http.request(req) }
   
-
   end
 
   def destroy
@@ -119,7 +118,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     pathvar = '/pulp/api/v2/repositories/' + :repoid '/'
     res = deletequery(pathvar)
     if res.code ==202
-      #output 
+      Puppet.debug("The update is executed and succesfull"
     end
   end
   
