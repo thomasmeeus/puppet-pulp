@@ -21,9 +21,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     end
   end
   
-  def query (pathvar,vars)
-    url = URI::HTTP.build({:host => hostname, :path => varpath})
-    req = postquery(url)
+  def query (req, url, vars)
     req.basic_auth :user :password
     req.body = "#{:vars}"
     sock Net::HTTP.new(url.host, url.port)
@@ -32,22 +30,37 @@ Puppet::Type.type(:pulp).provide(:repository) do
     res = sock.start {|http| http.request(req)}
     return res
   end
+  
+  def buildurl (pathvar)
+    url = URI::HTTP.build({:host =>  hostname, :path => varpath})
+    return url
+  end
 
-  def postquery (url)
+  def postquery (pathvar, vars)
+    url = buildurl(pathvar)
     req = Net::HTTP::Post.new(url.path, initheader = {'Content-Type' =>'application/json'})
-    return req
+    res = query(req, url, vars)
+    return res
   end
 
   def putquery (url)
     req = Net::HTTP::Put.new(url.path, initheader = {'Content-Type' =>'application/json'})
+    res = query(req, url, vars)
+    return res
   end
 
   def getquery (url)
     req = Net::HTTP::Get.new(url.path, initheader = {'Content-Type' =>'application/json'})
+    res = query(req, url, vars)
+    return res
+
   end
 
   def deletequery (url)
     req = Net::HTTP::Delete.new(url.path, initheader = {'Content-Type' =>'application/json'})
+    res = query(req, url, vars)
+    return res
+
   end
 
 
@@ -68,7 +81,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash.to_json
     pathvar = '/pulp/api/v2/repositories/'
 
-    
+    res = que
 
     #fail "Couldn't create repo: #{res.code} #{res.body}" unless res.kind_of? Net::HTTPSuccess
     if res.code == 200
