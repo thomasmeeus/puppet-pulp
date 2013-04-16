@@ -53,23 +53,17 @@ Puppet::Type.type(:pulp).provide(:repository) do
     req = Net::HTTP::Get.new(url.path, initheader = {'Content-Type' =>'application/json'})
     res = query(req, url, vars)
     return res
-
   end
 
   def deletequery (url)
     req = Net::HTTP::Delete.new(url.path, initheader = {'Content-Type' =>'application/json'})
     res = query(req, url, vars)
     return res
-
   end
 
 
 
   def create
-    @toSend = { 
-      "id" => :name,
-
-    }.to_json
 
     sendHash = Hash.new
     sendHash["id"] = :repoid
@@ -81,7 +75,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash.to_json
     pathvar = '/pulp/api/v2/repositories/'
 
-    res = que
+    res = postquery(pathvar, sendHash)
 
     #fail "Couldn't create repo: #{res.code} #{res.body}" unless res.kind_of? Net::HTTPSuccess
     if res.code == 200
