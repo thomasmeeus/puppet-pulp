@@ -1,17 +1,18 @@
-Puppet::Type.newtype(:pulp)do
+Puppet::Type.newtype(:pulp) do
   @doc = "Interface to manage pulp from within puppet"
-  
-  feature :createable, "The provider can create a repository",
-    :methods => [:create]
-  feature :updateble, "The provider can update the settings of a repository",
-    :methods => [:update]
-  feature :syncable, "The provider can synchronize a repository"
-    :methods => [:sync]
+  Puppet.debug("first test")  
+#  feature :createable, "The provider can create a repository",
+#    :methods => [:create]
+#  feature :updateble, "The provider can update the settings of a repository",
+#    :methods => [:update]
+#  feature :syncable, "The provider can synchronize a repository"
+#    :methods => [:sync]
   
   ensurable
-
+  Puppet.debug("after ensurable")
   newparam(:repoid, :namevar => true) do
     desc "Repository id"
+    Puppet.debug("test namepar")
   end
 
   newparam(:displayname) do
@@ -24,22 +25,22 @@ Puppet::Type.newtype(:pulp)do
 
   newparam(:onlynewest) do 
     desc "Only newest version op a given package is downloaded"
-    newvalues(:true, :false)
+    # newvalues(:true, :false)
   end
 
   newparam(:repotype) do 
     desc "Descripes witch type of repository you want to create"
-    defaultto('rpm_repo')
+    # defaultto('rpm_repo')
   end
 
   newparam(:feed) do 
     desc "full path to the feed that acts as source "
-    validate do \value\
-      unless Pathname.new(value).absolute? ||
-        URI.parse(value).is_a?(URI::HTTP)
-        fail("Invalid source #{value}")
-      end
-    end
+#    validate do \value\
+#      unless Pathname.new(value).absolute? ||
+#        URI.parse(value).is_a?(URI::HTTP)
+#        fail("Invalid source #{value}")
+#      end
+#    end
   end
 
   newparam(:feedcacert) do
@@ -48,7 +49,7 @@ Puppet::Type.newtype(:pulp)do
 
   newparam(:user) do
     desc "Specify which user executes the commands"
-    defaultto("admin")
+    # defaultto("admin")
   end
 
   newparam(:password) do
@@ -65,5 +66,6 @@ Puppet::Type.newtype(:pulp)do
 
   newparam(:hostname) do
     desc "hostname of the pulp-server"
-    defaultto :fqdn
+    #defaultto :fqdn
+  end
 end

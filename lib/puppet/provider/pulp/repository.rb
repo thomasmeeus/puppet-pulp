@@ -7,7 +7,8 @@ require 'json'
 Puppet::Type.type(:pulp).provide(:repository) do
 
   def exists?
-  false
+  Puppet.debug("check if exists")
+  #  false
   #begin
       #code to check is the repo exists
       #pathvar = '/pulp/api/v2/repositories/' + :repoid + '/'
@@ -21,7 +22,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
   
   def query (req, url, vars)
-    req.basic_auth :user :password
+    req.basic_auth :user, :password
     req.body = "#{:vars}"
     sock Net::HTTP.new(url.host, url.port)
     sock.use_ssl = true
@@ -31,7 +32,9 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
   
   def buildurl (pathvar)
-    url = URI::HTTP.build({:host =>  hostname, :path => varpath})
+  Puppet.debug("about to build string")  
+  url = URI::HTTP.build({:host =>  :hostname, :path => pathvar})
+    Puppet.debug("string build succes")
     return url
   end
 
@@ -94,7 +97,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
 
   def update
-    pathvar = '/pulp/api/v2/repositories/' + :repoid '/'
+    pathvar = '/pulp/api/v2/repositories/' + :repoid +  '/'
     res = putquery(pathvar, sendHash)
 
     if res.code == 200
@@ -114,10 +117,10 @@ Puppet::Type.type(:pulp).provide(:repository) do
 
   def destroy
     #code to delete a repo
-    pathvar = '/pulp/api/v2/repositories/' + :repoid '/'
+    pathvar = '/pulp/api/v2/repositories/' + :repoid + '/'
     res = deletequery(pathvar)
     if res.code ==202
-      Puppet.debug("The update is executed and succesfull"
+      Puppet.debug("The update is executed and succesfull")
     end
   end
   
