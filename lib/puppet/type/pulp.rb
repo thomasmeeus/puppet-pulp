@@ -1,3 +1,4 @@
+require 'facter'
 Puppet::Type.newtype(:pulp) do
   @doc = "Interface to manage pulp from within puppet"
   Puppet.debug("first test")  
@@ -67,6 +68,6 @@ Puppet::Type.newtype(:pulp) do
 
   newparam(:hostname) do
     desc "hostname of the pulp-server"
-    defaultto :fqdn
+    defaultto Facter.value('fqdn')
   end
 end

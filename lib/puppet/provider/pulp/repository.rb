@@ -24,7 +24,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def query (req, url, vars)
     req.basic_auth resource[:user], resource[:password]
     req.body = "#{vars}"
-    url = URI.parse("https://pulpserver2.example.com/pulp/api/v2/repositories/")
+    #url = URI.parse("https://pulpserver2.example.com/pulp/api/v2/repositories/")
     sock = Net::HTTP.new(url.host, url.port)
     sock.use_ssl = true
     sock.verify_mode = OpenSSL::SSL::VERIFY_NONE
@@ -33,9 +33,10 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
   
   def buildurl (pathvar)
-  Puppet.debug("about to build string")  
-  url = URI::HTTPS.build({:host =>  "www.test.com", :path => pathvar})
-    Puppet.debug("string build succes")
+  
+  #url = URI::HTTPS.build({:host =>  'www.test.com' , :path => pathvar})
+  url = URI::HTTPS.build({:host =>  resource[:hostname] , :path => pathvar})
+  puts url.to_s
     return url
   end
 
