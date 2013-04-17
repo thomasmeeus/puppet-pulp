@@ -25,12 +25,12 @@ Puppet::Type.newtype(:pulp) do
 
   newparam(:onlynewest) do 
     desc "Only newest version op a given package is downloaded"
-    # newvalues(:true, :false)
+    newvalues(:true, :false)
   end
 
   newparam(:repotype) do 
     desc "Descripes witch type of repository you want to create"
-    # defaultto('rpm_repo')
+    defaultto('rpm_repo')
   end
 
   newparam(:feed) do 
@@ -49,11 +49,12 @@ Puppet::Type.newtype(:pulp) do
 
   newparam(:user) do
     desc "Specify which user executes the commands"
-    # defaultto("admin")
+    defaultto("admin")
   end
 
   newparam(:password) do
     desc "Specify the password of the user"
+    defaultto("admin")
   end
 
   newparam(:feedcert) do
@@ -66,6 +67,6 @@ Puppet::Type.newtype(:pulp) do
 
   newparam(:hostname) do
     desc "hostname of the pulp-server"
-    #defaultto :fqdn
+    defaultto :fqdn
   end
 end

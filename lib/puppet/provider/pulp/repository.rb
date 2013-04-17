@@ -22,18 +22,19 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
   
   def query (req, url, vars)
-    req.basic_auth :user, :password
-    req.body = "#{:vars}"
-    sock Net::HTTP.new(url.host, url.port)
+    req.basic_auth resource[:user], resource[:password]
+    req.body = "#{vars}"
+    url = URI.parse("https://pulpserver2.example.com/pulp/api/v2/repositories/")
+    sock = Net::HTTP.new(url.host, url.port)
     sock.use_ssl = true
     sock.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    res = sock.start {|http| http.request(req)}
+    res = sock.start{|http| http.request(req)}
     return res
   end
   
   def buildurl (pathvar)
   Puppet.debug("about to build string")  
-  url = URI::HTTP.build({:host =>  :hostname, :path => pathvar})
+  url = URI::HTTPS.build({:host =>  "www.test.com", :path => pathvar})
     Puppet.debug("string build succes")
     return url
   end
@@ -69,29 +70,29 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def create
 
     sendHash = Hash.new
-    sendHash["id"] = :repoid
-    sendHash["display_name"] = :displayname if :displayname
-    sendHash["description"] = :description if :description
+    sendHash["id"] = resource[:repoid]
+    sendHash["display_name"] = resource[:displayname] if resource[:displayname]
+    sendHash["description"] = resource[:description] if resource[:description]
     sendHash["notes"] = Hash.new
-    sendHash["notes"]["_repo-type"] = :repotype
+    sendHash["notes"]["_repo-type"] = resource[:repoid]
     #TODO add extra note fields
-    sendHash.to_json
+    sendVar = sendHash.to_json
     pathvar = '/pulp/api/v2/repositories/'
 
-    res = postquery(pathvar, sendHash)
+    res = postquery(pathvar, sendVar)
 
-    #fail "Couldn't create repo: #{res.code} #{res.body}" unless res.kind_of? Net::HTTPSuccess
-    if res.code == 200
+    if res.code.to_i == 201
       #output: the repository was successfully created
+      puts resource[:hostname]
       Puppet.debug("Repository created")
     elsif res.code == 400
       #output: if one or more of the parameters is invalid
       fail("One or more of the parameters is invalid")
-    elsif res.code == 409
+    elsif res.code.to_i == 409
       #output:  if there is already a repository with the given ID
       fail("There is already a repository with the given ID")
     else 
-      fail("An unexpected error occurred")
+      fail("An unexpected test error occurred" + res.code )
     end
 
   end
