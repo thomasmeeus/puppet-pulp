@@ -8,9 +8,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
 
   def exists?
   #  false
-  puts 'test exists'
-  true
-  
+ false 
   
 
   #begin
@@ -48,14 +46,14 @@ Puppet::Type.type(:pulp).provide(:repository) do
     return res
   end
 
-  def putquery (url)
+  def putquery (pathvar, vars)
     url = buildurl(pathvar)
     req = Net::HTTP::Put.new(url.path, initheader = {'Content-Type' =>'application/json'})
     res = query(req, url, vars)
     return res
   end
 
-  def getquery (url)
+  def getquery (pathvar, vars)
     url = buildurl(pathvar)
     req = Net::HTTP::Get.new(url.path, initheader = {'Content-Type' =>'application/json'})
     res = query(req, url, vars)
@@ -69,8 +67,8 @@ Puppet::Type.type(:pulp).provide(:repository) do
     res = query(req, url, vars)
     return res
   end
-
-  def create
+  
+  def createsendhash
     sendHash = Hash.new
     sendHash["id"] = resource[:repoid]
     sendHash["display_name"] = resource[:displayname] if resource[:displayname]
@@ -79,7 +77,19 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash["notes"]["_repo-type"] = resource[:repoid]
     #TODO add extra note fields
     sendVar = sendHash.to_json
-    
+    return sendVar
+  end
+
+  def create
+#    sendHash = Hash.new
+#    sendHash["id"] = resource[:repoid]
+#   sendHash["display_name"] = resource[:displayname] if resource[:displayname]
+#    sendHash["description"] = resource[:description] if resource[:description]
+#   sendHash["notes"] = Hash.new
+#   sendHash["notes"]["_repo-type"] = resource[:repoid]
+#   #TODO add extra note fields
+#   sendVar = sendHash.to_json
+    sendVar = createsendhash()
     pathvar = '/pulp/api/v2/repositories/'
 
     res = postquery(pathvar, sendVar)
@@ -119,7 +129,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
 
   def destroy
-    #code to delete a repo
     pathvar = '/pulp/api/v2/repositories/' + resource[:repoid] + '/'
     res = deletequery(pathvar)
     if res.code.to_i ==202
@@ -127,12 +136,14 @@ Puppet::Type.type(:pulp).provide(:repository) do
     else 
       fail("An unexpected error occured")
     end
-    pathvarorphans = '/pulp/api/v2/content/orphans/'
-    resorphans = deletequery(pathvarorphans)
-    if resorphans.code.to_i ==202
-      Puppet.debug("All orphans are removed")
-    else
-      fail("An unexpected error occured")
+    if resource[:removeorphans] == true
+      pathvarorphans = '/pulp/api/v2/content/orphans/'
+      resorphans = deletequery(pathvarorphans)
+      if resorphans.code.to_i ==202
+        Puppet.debug("All orphans are removed")
+      else
+        fail("An unexpected error occured")
+      end
     end
   end
   
