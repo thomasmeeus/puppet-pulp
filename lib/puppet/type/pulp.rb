@@ -28,7 +28,7 @@ Puppet::Type.newtype(:pulp) do
 
   newparam(:repotype) do 
     desc "Descripes witch type of repository you want to create"
-    defaultto('rpm_repo')
+    defaultto('rpm-repo')
   end
 
   newparam(:feed) do 

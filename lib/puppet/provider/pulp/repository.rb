@@ -68,32 +68,93 @@ Puppet::Type.type(:pulp).provide(:repository) do
     return res
   end
   
-  def createsendhash
+  def createrepohash
     sendHash = Hash.new
     sendHash["id"] = resource[:repoid]
     sendHash["display_name"] = resource[:displayname] if resource[:displayname]
     sendHash["description"] = resource[:description] if resource[:description]
     sendHash["notes"] = Hash.new
-    sendHash["notes"]["_repo-type"] = resource[:repoid]
+    #noteHash = Hash.new
+    #note["_repo-type" = resource[:repoid
+    sendHash["notes"]["_repo-type"] = resource[:repotype]
     #TODO add extra note fields
     sendVar = sendHash.to_json
     return sendVar
   end
 
-  def create
-#    sendHash = Hash.new
-#    sendHash["id"] = resource[:repoid]
-#   sendHash["display_name"] = resource[:displayname] if resource[:displayname]
-#    sendHash["description"] = resource[:description] if resource[:description]
-#   sendHash["notes"] = Hash.new
-#   sendHash["notes"]["_repo-type"] = resource[:repoid]
-#   #TODO add extra note fields
-#   sendVar = sendHash.to_json
-    sendVar = createsendhash()
+  def createimporterhash
+    sendHash = Hash.new
+    sendHash["importer_type_id"] = "yum_importer"
+    sendHash["importer_config"] = Hash.new
+    sendHash["importer_config"]["feed_url"] = resource[:feed]
+
+    sendVar = sendHash.to_json
+    return sendVar
+  end
+
+  def createdistributorhash(id)
+    sendHash = Hash.new
+    sendHash["distributor_id"] = id
+    sendHash["distributor_type_id"] = id
+    sendHash["distributor_config"] = Hash.new
+    sendHash["distributor_config"]["http"] = true
+    sendHash["distributor_config"]["https"] = false 
+    sendHash["distributor_config"]["relative_url"] = resource[:repoid] #probably bug in pulp, doc says it's an optional parameter bug errors when you don't provide it. 
+    #TODO add config parameters to hash
+
+    sendVar = sendHash.to_json
+    return sendVar
+  end
+
+  def createimporter
+    sendVar = createimporterhash()
+    pathvar = '/pulp/api/v2/repositories/' + resource[:repoid] + '/importers/'
+    res = postquery(pathvar, sendVar)
+
+    if res.code.to_i == 201
+      #output: the repository was successfully created
+      Puppet.debug("The importer was created succesfully")
+    elsif res.code.to_i == 400
+      #output: if one or more of the parameters is invalid
+      fail("one or more of the required parameters is missing, the importer type ID refers to a non-existent importer, or the importer indicates the supplied configuration is invalid")
+    elsif res.code.to_i == 404
+      #output:  if there is already a repository with the given ID
+      fail("there is no repository with the given ID")
+    elsif res.code.to_i == 500
+      fail("the importer raises an error during initialization")
+    else 
+      fail("An unexpected test error occurred" + res.code )
+    end
+
+  end
+
+  def createdistributor(id)
+    sendVar = createdistributorhash(id)
+    pathvar = '/pulp/api/v2/repositories/' + resource[:repoid] + '/distributors/'
+    res = postquery(pathvar, sendVar)
+    if res.code.to_i == 201
+      #output: the repository was successfully created
+      Puppet.debug("The distributor was created succesfully")
+    elsif res.code.to_i == 400
+      #output: if one or more of the parameters is invalid
+      fail("one or more of the required parameters is missing, the distributor type ID refers to a non-existent distributor, or the distributor indicates the supplied configuration is invalid" + res.body)
+    elsif res.code.to_i == 404
+      #output:  if there is already a repository with the given ID
+      fail("there is no repository with the given ID")
+    elsif res.code.to_i == 500
+      fail("the distributor raises an error during initialization")
+    else 
+      fail("An unexpected test error occurred" + res.code )
+    end
+
+  end
+  
+  def createrepo
+    sendVar = createrepohash()
     pathvar = '/pulp/api/v2/repositories/'
 
     res = postquery(pathvar, sendVar)
-
+    
     if res.code.to_i == 201
       #output: the repository was successfully created
       Puppet.debug("Repository created")
@@ -107,6 +168,15 @@ Puppet::Type.type(:pulp).provide(:repository) do
       fail("An unexpected test error occurred" + res.code )
     end
 
+  end
+
+  def create
+    createrepo()
+    createimporter()
+    # createdistributor("export_distributor")
+    createdistributor("yum_distributor")
+
+   
   end
 
   def update
