@@ -7,9 +7,14 @@ require 'json'
 Puppet::Type.type(:pulp).provide(:repository) do
 
   def exists?
-  Puppet.debug("check if exists")
   #  false
+  puts 'test exists'
+  true
+  
+  
+
   #begin
+
       #code to check is the repo exists
       #pathvar = '/pulp/api/v2/repositories/' + :repoid + '/'
        
@@ -24,7 +29,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def query (req, url, vars)
     req.basic_auth resource[:user], resource[:password]
     req.body = "#{vars}"
-    #url = URI.parse("https://pulpserver2.example.com/pulp/api/v2/repositories/")
     sock = Net::HTTP.new(url.host, url.port)
     sock.use_ssl = true
     sock.verify_mode = OpenSSL::SSL::VERIFY_NONE
@@ -33,10 +37,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
   
   def buildurl (pathvar)
-  
-  #url = URI::HTTPS.build({:host =>  'www.test.com' , :path => pathvar})
-  url = URI::HTTPS.build({:host =>  resource[:hostname] , :path => pathvar})
-  puts url.to_s
+    url = URI::HTTPS.build({:host =>  resource[:hostname] , :path => pathvar})
     return url
   end
 
@@ -64,12 +65,12 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def deletequery (pathvar)
     url = buildurl(pathvar)
     req = Net::HTTP::Delete.new(url.path, initheader = {'Content-Type' =>'application/json'})
-    res = query(req, url)
+    vars = nil
+    res = query(req, url, vars)
     return res
   end
 
   def create
-
     sendHash = Hash.new
     sendHash["id"] = resource[:repoid]
     sendHash["display_name"] = resource[:displayname] if resource[:displayname]
@@ -78,15 +79,15 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash["notes"]["_repo-type"] = resource[:repoid]
     #TODO add extra note fields
     sendVar = sendHash.to_json
+    
     pathvar = '/pulp/api/v2/repositories/'
 
     res = postquery(pathvar, sendVar)
 
     if res.code.to_i == 201
       #output: the repository was successfully created
-      puts resource[:hostname]
       Puppet.debug("Repository created")
-    elsif res.code == 400
+    elsif res.code.to_i == 400
       #output: if one or more of the parameters is invalid
       fail("One or more of the parameters is invalid")
     elsif res.code.to_i == 409
@@ -99,16 +100,16 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
 
   def update
-    pathvar = '/pulp/api/v2/repositories/' + :repoid +  '/'
+    pathvar = '/pulp/api/v2/repositories/' + resource[:repoid] +  '/'
     res = putquery(pathvar, sendHash)
 
-    if res.code == 200
+    if res.code.to_i == 200
       Puppet.debug("The update is executed and succesfull")
-    elsif res.code == 202
+    elsif res.code.to_i == 202
       fail("The update was postponed")
-    elsif res.code == 400
+    elsif res.code.to_i == 400
       fail("One or more of the parameters is invalid")
-    elsif res.code == 400
+    elsif res.code.to_i == 400
       fail("One or more of the parameters is invalid")
     else 
       fail("An unexpected error occurred")
@@ -119,10 +120,19 @@ Puppet::Type.type(:pulp).provide(:repository) do
 
   def destroy
     #code to delete a repo
-    pathvar = '/pulp/api/v2/repositories/' + :repoid + '/'
+    pathvar = '/pulp/api/v2/repositories/' + resource[:repoid] + '/'
     res = deletequery(pathvar)
-    if res.code ==202
+    if res.code.to_i ==202
       Puppet.debug("The update is executed and succesfull")
+    else 
+      fail("An unexpected error occured")
+    end
+    pathvarorphans = '/pulp/api/v2/content/orphans/'
+    resorphans = deletequery(pathvarorphans)
+    if resorphans.code.to_i ==202
+      Puppet.debug("All orphans are removed")
+    else
+      fail("An unexpected error occured")
     end
   end
   

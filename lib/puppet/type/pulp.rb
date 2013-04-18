@@ -1,7 +1,6 @@
 require 'facter'
 Puppet::Type.newtype(:pulp) do
   @doc = "Interface to manage pulp from within puppet"
-  Puppet.debug("first test")  
 #  feature :createable, "The provider can create a repository",
 #    :methods => [:create]
 #  feature :updateble, "The provider can update the settings of a repository",
@@ -10,10 +9,8 @@ Puppet::Type.newtype(:pulp) do
 #    :methods => [:sync]
   
   ensurable
-  Puppet.debug("after ensurable")
   newparam(:repoid, :namevar => true) do
     desc "Repository id"
-    Puppet.debug("test namepar")
   end
 
   newparam(:displayname) do
@@ -36,12 +33,12 @@ Puppet::Type.newtype(:pulp) do
 
   newparam(:feed) do 
     desc "full path to the feed that acts as source "
-#    validate do \value\
-#      unless Pathname.new(value).absolute? ||
-#        URI.parse(value).is_a?(URI::HTTP)
-#        fail("Invalid source #{value}")
-#      end
-#    end
+    validate do |value|
+      unless Pathname.new(value).absolute? ||
+        URI.parse(value).is_a?(URI::HTTP)
+        fail("Invalid source #{value}")
+      end
+    end
   end
 
   newparam(:feedcacert) do
@@ -69,5 +66,10 @@ Puppet::Type.newtype(:pulp) do
   newparam(:hostname) do
     desc "hostname of the pulp-server"
     defaultto Facter.value('fqdn')
+  end
+  newparam(:removeorphans) do
+    desc "removes all orphan packages"
+    newvalues(:true, :false)
+    defaultto(:true)
   end
 end
