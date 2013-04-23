@@ -9,31 +9,18 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def exists?
     res = getrepo(resource[:repoid])
     if res.code.to_i == 200
-    puts res.body
-      jdoc =JSON.parse(res.body)
-      puts jdoc
-      response = jdoc.fetch("importers")
-      test = response.to_json[1..-2]
-      puts test
-      importers = jdoc.fetch("importers")
-      importershash = JSON.parse(jdoc.fetch("importers").to_json[1..-2]) #werkt
-      puts importershash.fetch("importer_type_id")
-      #puts response
-      #puts response.to_json
-      jdoc2 = JSON.parse(response.to_json)
-      #puts jdoc2
-      response2 = JSON.parse(test)
-      puts response2
-      prul = response2
-      # prul = response2.fetch("feed_url")
-      puts prul.class
-      puts prul.fetch("importer_type_id")
-      #puts response
-      importershash.each do |doc|
-       # puts doc["id"] #reference properties like this
+    #puts res.body
+      completehash =JSON.parse(res.body)
+      
+      importershash = JSON.parse(completehash.fetch("importers").to_json[1..-2]) #werkt
+      importersconfig = JSON.parse(importershash.fetch("config").to_json) #werkt 
+      
+      distributorshash = JSON.parse(completehash.fetch("distributors").to_json[1..-2]) #werkt
+      distributorsconfig = JSON.parse(distributorshash.fetch("config").to_json) #werkt 
+
+      completehash.each do |doc|
        puts doc # this is the result in object form
        puts ""
-       #end
       end        
       return true
     elsif res.code.to_i == 404
@@ -41,9 +28,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
       return false
     end
 
-      #jdoc = JSON.parse(res.body)
-      #response = jdoc.fetch(:description)
-      #rescue Puppet::ExecutionFailure => e
   end
   
   def getrepo(id)
@@ -221,7 +205,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     # createdistributor("export_distributor")
     createdistributor("yum_distributor")
     res = getrepo(resource[:repoid])
-    puts res.body #TODO remove
+    #puts res.body #TODO remove
    
   end
 
