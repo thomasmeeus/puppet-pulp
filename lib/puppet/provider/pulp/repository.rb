@@ -9,12 +9,37 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def exists?
     res = getrepo(resource[:repoid])
     if res.code.to_i == 200
+    puts res.body
+      jdoc =JSON.parse(res.body)
+      puts jdoc
+      response = jdoc.fetch("importers")
+      test = response.to_json[1..-2]
+      puts test
+      importers = jdoc.fetch("importers")
+      importershash = JSON.parse(jdoc.fetch("importers").to_json[1..-2]) #werkt
+      puts importershash.fetch("importer_type_id")
+      #puts response
+      #puts response.to_json
+      jdoc2 = JSON.parse(response.to_json)
+      #puts jdoc2
+      response2 = JSON.parse(test)
+      puts response2
+      prul = response2
+      # prul = response2.fetch("feed_url")
+      puts prul.class
+      puts prul.fetch("importer_type_id")
+      #puts response
+      importershash.each do |doc|
+       # puts doc["id"] #reference properties like this
+       puts doc # this is the result in object form
+       puts ""
+       #end
+      end        
       return true
     elsif res.code.to_i == 404
       puts "bestaat nog ni"
       return false
     end
-       
 
       #jdoc = JSON.parse(res.body)
       #response = jdoc.fetch(:description)
@@ -24,7 +49,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def getrepo(id)
     pathvar = "/pulp/api/v2/repositories/" + id + "/"
     sendVar = creategetrepoinfohash()
-    puts "test"
     url = URI::HTTPS.build({:host =>  resource[:hostname] , :path => pathvar, :query => 'details=True'})
     res = getquery(pathvar, sendVar)
     return res
@@ -62,12 +86,9 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def getquery (pathvar, vars)
     #url = buildurl(pathvar) 
     url = URI::HTTPS.build({:host =>  resource[:hostname] , :path => pathvar, :query => 'details=True'})
-    puts url.request_uri
     req = Net::HTTP::Get.new(url.request_uri)
     #req = Net::HTTP::Get.new(url.path, url.query, initheader = {'Content-Type' =>'application/json'})
-    puts url
     res = query(req, url, vars)
-    puts res.body
     return res
   end
 
@@ -82,11 +103,9 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def createrepohash
     sendHash = Hash.new
     sendHash["id"] = resource[:repoid]
-    sendHash["display_name"] = resource[:display_name] if resource[:display_name]
+    sendHash["display_name"] = resource[:displayname] if resource[:displayname]
     sendHash["description"] = resource[:description] if resource[:description]
     sendHash["notes"] = Hash.new
-    #noteHash = Hash.new
-    #note["_repo-type" = resource[:repoid
     sendHash["notes"]["_repo-type"] = resource[:repotype]
     #TODO add extra note fields
     sendVar = sendHash.to_json
@@ -98,6 +117,9 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash["importer_type_id"] = "yum_importer"
     sendHash["importer_config"] = Hash.new
     sendHash["importer_config"]["feed_url"] = resource[:feed]
+    sendHash["importer_config"]["ssl_ca_cert"] = resource[:feedcacert] if resource[:feedcacert]
+    sendHash["importer_config"]["ssl_client_cert"] = resource[:feedcert] if resource[:feedcert]
+    sendHash["importer_config"]["ssl_client_key"] = resource[:feedkey] if resource[:feedkey]
 
     sendVar = sendHash.to_json
     return sendVar
@@ -116,13 +138,11 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash["distributor_type_id"] = id
     sendHash["distributor_config"] = Hash.new
     #sendHash["distributor_config"]["http"] = true
-    sendHash["distributor_config"]["http"] = (resource[:serve_http]!=:false)
-    sendHash["distributor_config"]["https"] = (resource[:serve_https]!=:false)
-    sendHash["distributor_config"]["auth_ca"] = resource[:auth_ca] if resource[:auth_ca]
-    sendHash["distributor_config"]["https_ca"] = resource[:https_ca] if resource[:https_ca]
+    sendHash["distributor_config"]["http"] = (resource[:servehttp]!=:false)
+    sendHash["distributor_config"]["https"] = (resource[:servehttps]!=:false)
+    sendHash["distributor_config"]["auth_ca"] = resource[:authca] if resource[:authca]
+    sendHash["distributor_config"]["https_ca"] = resource[:httpsca] if resource[:httpsca]
     sendHash["distributor_config"]["gpgkey"] = resource[:gpgkey] if resource[:gpgkey]
-    puts "test if " if resource[:gpgkey]
-    #puts resource[:gpgkey]
     sendHash["distributor_config"]["relative_url"] = resource[:repoid] #probably bug in pulp, doc says it's an optional parameter bug errors when you don't provide it. 
 
     sendVar = sendHash.to_json
@@ -200,7 +220,8 @@ Puppet::Type.type(:pulp).provide(:repository) do
     createimporter()
     # createdistributor("export_distributor")
     createdistributor("yum_distributor")
-
+    res = getrepo(resource[:repoid])
+    puts res.body #TODO remove
    
   end
 
@@ -243,10 +264,4 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
   
 end
-class Symbol
-  def to_bool
-    return true if self == true || self =~ (/(true|t|yes|y|1)$/i)
-    return false if self == false || self.blank? || self =~ (/(false|f|no|n|0)$/i)
-    raise ArgumentError.new("invalid value for Boolean: \"#{self}\"")
-  end
-end
+
