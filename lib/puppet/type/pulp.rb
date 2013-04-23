@@ -13,7 +13,7 @@ Puppet::Type.newtype(:pulp) do
     desc "Repository id"
   end
 
-  newparam(:displayname) do
+  newparam(:display_name) do
     desc "Repository display name"
   end
 
@@ -72,4 +72,29 @@ Puppet::Type.newtype(:pulp) do
     newvalues(:true, :false)
     defaultto(:true)
   end
+  
+  newparam(:serve_http) do
+    desc "Flag indicating if the repository will be served over a non-SSL connection. Valid values to this option are True and False. This option is required."
+    newvalues(:true, :false)
+    defaultto(:true)
+  end
+
+  newparam(:serve_https) do 
+    desc "Flag indicating if the repository will be served over an SSL connection. If this is set to true, the https_ca option should also be specified to ensure consumers bound to this repository have the necessary certificate to validate the SSL connection. Valid values to this option are True and False. This option is required."
+    newvalues(:true, :false)
+    defaultto(:false)
+  end
+  
+  newparam(:gpgkey) do
+    desc "GPG key used to sign RPMs in this repository. This key will be made available to consumers to use in verifying content in the repository. The value to this option must be the full path to the GPG key file."
+  end
+  
+  newparam(:https_ca) do
+    desc "CA certificate used to sign the SSL certificate the server is using to host this repository. This certificate will be made available to bound consumers so they can verify the server’s identity. The value to this option must be the full path to the certificate."
+  end
+
+  newparam(:auth_ca) do
+    desc "CA certificate that was used to sign the certificate specified in auth-cert. The server will use this CA to verify that the incoming request’s client certificate is signed by the correct source and is not forged. The value to this option must be the full path to the CA certificate file."
+  end
+
 end

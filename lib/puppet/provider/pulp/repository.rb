@@ -7,23 +7,29 @@ require 'json'
 Puppet::Type.type(:pulp).provide(:repository) do
 
   def exists?
-  #  false
- false 
-  
-
-  #begin
-
-      #code to check is the repo exists
-      #pathvar = '/pulp/api/v2/repositories/' + :repoid + '/'
+    res = getrepo(resource[:repoid])
+    if res.code.to_i == 200
+      return true
+    elsif res.code.to_i == 404
+      puts "bestaat nog ni"
+      return false
+    end
        
 
-      #   jdoc = JSON.parse(res.body)
+      #jdoc = JSON.parse(res.body)
       #response = jdoc.fetch(:description)
       #rescue Puppet::ExecutionFailure => e
-      # false
-      #end
   end
   
+  def getrepo(id)
+    pathvar = "/pulp/api/v2/repositories/" + id + "/"
+    sendVar = creategetrepoinfohash()
+    puts "test"
+    url = URI::HTTPS.build({:host =>  resource[:hostname] , :path => pathvar, :query => 'details=True'})
+    res = getquery(pathvar, sendVar)
+    return res
+  end
+
   def query (req, url, vars)
     req.basic_auth resource[:user], resource[:password]
     req.body = "#{vars}"
@@ -54,9 +60,14 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
 
   def getquery (pathvar, vars)
-    url = buildurl(pathvar)
-    req = Net::HTTP::Get.new(url.path, initheader = {'Content-Type' =>'application/json'})
+    #url = buildurl(pathvar) 
+    url = URI::HTTPS.build({:host =>  resource[:hostname] , :path => pathvar, :query => 'details=True'})
+    puts url.request_uri
+    req = Net::HTTP::Get.new(url.request_uri)
+    #req = Net::HTTP::Get.new(url.path, url.query, initheader = {'Content-Type' =>'application/json'})
+    puts url
     res = query(req, url, vars)
+    puts res.body
     return res
   end
 
@@ -71,7 +82,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def createrepohash
     sendHash = Hash.new
     sendHash["id"] = resource[:repoid]
-    sendHash["display_name"] = resource[:displayname] if resource[:displayname]
+    sendHash["display_name"] = resource[:display_name] if resource[:display_name]
     sendHash["description"] = resource[:description] if resource[:description]
     sendHash["notes"] = Hash.new
     #noteHash = Hash.new
@@ -91,16 +102,28 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendVar = sendHash.to_json
     return sendVar
   end
+  
+  def creategetrepoinfohash
+    sendHash = Hash.new
+    sendHash["details"] = 'True'
+    sendVar = sendHash.to_json
+    return sendVar
+  end
 
   def createdistributorhash(id)
     sendHash = Hash.new
     sendHash["distributor_id"] = id
     sendHash["distributor_type_id"] = id
     sendHash["distributor_config"] = Hash.new
-    sendHash["distributor_config"]["http"] = true
-    sendHash["distributor_config"]["https"] = false 
+    #sendHash["distributor_config"]["http"] = true
+    sendHash["distributor_config"]["http"] = (resource[:serve_http]!=:false)
+    sendHash["distributor_config"]["https"] = (resource[:serve_https]!=:false)
+    sendHash["distributor_config"]["auth_ca"] = resource[:auth_ca] if resource[:auth_ca]
+    sendHash["distributor_config"]["https_ca"] = resource[:https_ca] if resource[:https_ca]
+    sendHash["distributor_config"]["gpgkey"] = resource[:gpgkey] if resource[:gpgkey]
+    puts "test if " if resource[:gpgkey]
+    #puts resource[:gpgkey]
     sendHash["distributor_config"]["relative_url"] = resource[:repoid] #probably bug in pulp, doc says it's an optional parameter bug errors when you don't provide it. 
-    #TODO add config parameters to hash
 
     sendVar = sendHash.to_json
     return sendVar
@@ -140,7 +163,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
       fail("one or more of the required parameters is missing, the distributor type ID refers to a non-existent distributor, or the distributor indicates the supplied configuration is invalid" + res.body)
     elsif res.code.to_i == 404
       #output:  if there is already a repository with the given ID
-      fail("there is no repository with the given ID")
+      fail("there is no repository with the given ID" + res.code)
     elsif res.code.to_i == 500
       fail("the distributor raises an error during initialization")
     else 
@@ -171,7 +194,9 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
 
   def create
+    Puppet.debug("start creating repo")
     createrepo()
+    Puppet.debug("repo created")
     createimporter()
     # createdistributor("export_distributor")
     createdistributor("yum_distributor")
@@ -218,4 +243,10 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
   
 end
-
+class Symbol
+  def to_bool
+    return true if self == true || self =~ (/(true|t|yes|y|1)$/i)
+    return false if self == false || self.blank? || self =~ (/(false|f|no|n|0)$/i)
+    raise ArgumentError.new("invalid value for Boolean: \"#{self}\"")
+  end
+end
