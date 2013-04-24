@@ -19,11 +19,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
       distributorshash = JSON.parse(completehash.fetch("distributors").to_json[1..-2]) #werkt
       distributorsconfig = JSON.parse(distributorshash.fetch("config").to_json) #werkt 
       
-      #begin check if all the parameters match
-      if completehash.fetch("description") == resource[:description]
-        puts "succes"
-
-      end
       conditions = Hash.new
       conditions["id"] = resource[:repoid]
       conditions["description"] = resource[:description]
@@ -47,11 +42,28 @@ Puppet::Type.type(:pulp).provide(:repository) do
       puts "de id van de importerhash"
       puts importershash["id"]
       importersconfighash.each { |key, value|
-      puts 'key'
-     
-      puts key
-      puts 'value'
+      puts 'eerste test'
+      if importersconfig[key] == value
+      puts importersconfig[key]
       puts value
+      else
+      returnvalue = false
+      puts "de waarde van de feed is veranderd"
+      end
+      }
+      test = JSON.parse(createimporterhash())
+      test.each{ |key, value|
+      if value.class == Hash
+        value.each{ |key, value|
+        puts key
+        puts value
+        puts ""
+        }
+      else
+        puts key
+        puts value
+        puts ""
+      end
       }
 
       #for i in 0..
