@@ -11,18 +11,66 @@ Puppet::Type.type(:pulp).provide(:repository) do
     if res.code.to_i == 200
     #puts res.body
       completehash =JSON.parse(res.body)
-      
+      noteshash = JSON.parse(completehash.fetch("notes").to_json)
+
       importershash = JSON.parse(completehash.fetch("importers").to_json[1..-2]) #werkt
       importersconfig = JSON.parse(importershash.fetch("config").to_json) #werkt 
       
       distributorshash = JSON.parse(completehash.fetch("distributors").to_json[1..-2]) #werkt
       distributorsconfig = JSON.parse(distributorshash.fetch("config").to_json) #werkt 
+      
+      #begin check if all the parameters match
+      if completehash.fetch("description") == resource[:description]
+        puts "succes"
 
-      completehash.each do |doc|
-       puts doc # this is the result in object form
-       puts ""
-      end        
+      end
+      conditions = Hash.new
+      conditions["id"] = resource[:repoid]
+      conditions["description"] = resource[:description]
+      conditions["display_name"] = resource[:displayname]
+      
+      conditionsnotes = Hash.new
+      conditionsnotes["_repo-type"] = resource[:repotype]
+
+      importers = Hash.new
+      importers["id"] = "yum_importer"
+
+      importersconfighash = Hash.new
+      importersconfighash["feed_url"] = resource[:feed]
+      importersconfighash["ssl_ca_cert"] = resource[:feedcacert] if resource[:feedcacert]
+      importersconfighash["ssl_client_cert"] = resource[:feedcert] if resource[:feedcert]
+      importersconfighash["ssl_client_key"] = resource[:feedkey] if resource[:feedkey]
+      returnvalue = true
+      
+      #Check if importername is ok
+      #if importershash
+      puts "de id van de importerhash"
+      puts importershash["id"]
+      importersconfighash.each { |key, value|
+      puts 'key'
+     
+      puts key
+      puts 'value'
+      puts value
+      }
+
+      #for i in 0..
+      #puts "complete hash"
+      #importershash.each do |doc|
+      #puts doc # this is the result in object form
+      #puts ""
+       #end        
+      
+       #return true
+      
+       #puts "noteshash"
+       #noteshash.each do |notes|
+       #puts notes
+       #puts ""
+       #end
+      
       return true
+
     elsif res.code.to_i == 404
       puts "bestaat nog ni"
       return false
