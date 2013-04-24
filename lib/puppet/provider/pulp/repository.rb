@@ -37,50 +37,49 @@ Puppet::Type.type(:pulp).provide(:repository) do
       importersconfighash["ssl_client_key"] = resource[:feedkey] if resource[:feedkey]
       returnvalue = true
       
-      #Check if importername is ok
-      #if importershash
-      puts "de id van de importerhash"
-      puts importershash["id"]
-      importersconfighash.each { |key, value|
-      puts 'eerste test'
-      if importersconfig[key] == value
-      puts importersconfig[key]
-      puts value
-      else
-      returnvalue = false
-      puts "de waarde van de feed is veranderd"
-      end
-      }
-      test = JSON.parse(createimporterhash())
+      test = JSON.parse(createrepohash())
       test.each{ |key, value|
-      if value.class == Hash
-        value.each{ |key, value|
-        puts key
-        puts value
-        puts ""
+        if value.class == Hash
+          value.each{ |key, value|
+            if value.class == Array
+              tester = Hash[*value]
+              tester.each{ |key, value|
+                puts key
+                puts value
+                puts ""
+              }
+            elsif value.class == Hash
+              tester.each{ |key, value|
+                puts key
+                puts value
+                puts ""
+              }
+      
+            else
+              puts key
+              puts value
+              puts value.class
+              puts ""
+            end
+          }
+          elsif value.class == Array
+            puts "############################"
+            puts "#######"+ key + "############"
+            tester = Hash[*value]
+            tester.each{ |key, value|
+              puts key
+              puts value
+              puts ""
+            }
+            puts "############################"
+        else
+          puts key
+          puts value
+          puts value.class
+          puts ""
+        end
         }
-      else
-        puts key
-        puts value
-        puts ""
-      end
-      }
 
-      #for i in 0..
-      #puts "complete hash"
-      #importershash.each do |doc|
-      #puts doc # this is the result in object form
-      #puts ""
-       #end        
-      
-       #return true
-      
-       #puts "noteshash"
-       #noteshash.each do |notes|
-       #puts notes
-       #puts ""
-       #end
-      
       return true
 
     elsif res.code.to_i == 404
