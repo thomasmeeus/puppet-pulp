@@ -36,7 +36,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
       importersconfighash["ssl_client_cert"] = resource[:feedcert] if resource[:feedcert]
       importersconfighash["ssl_client_key"] = resource[:feedkey] if resource[:feedkey]
       returnvalue = true
-      
+      puts "tester" 
       test = JSON.parse(createrepohash())
       test.each{ |key, value|
         if value.class == Hash
