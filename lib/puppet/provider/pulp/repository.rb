@@ -4,6 +4,31 @@ require 'net/https'
 require 'uri'
 require 'json'
 
+class Importer
+
+  attr_accessor :id
+  attr_accessor :feed_url
+  attr_accessor :ssl_ca_cert
+  attr_accessor :ssl_client_cert
+  attr_accessor :ssl_client_key
+end
+
+class Distributor
+  attr_accessor :id
+  attr_accessor :http
+  attr_accessor :https
+  attr_accessor :relatice_url
+  attr_accessor :gpgkey
+end
+
+class Repository
+  attr_accessor :id
+  attr_accessor :display_name
+  attr_accessor :description
+  attr_accessor :repo_type
+
+end
+
 Puppet::Type.type(:pulp).provide(:repository) do
 
   def exists?
@@ -36,9 +61,9 @@ Puppet::Type.type(:pulp).provide(:repository) do
       importersconfighash["ssl_client_cert"] = resource[:feedcert] if resource[:feedcert]
       importersconfighash["ssl_client_key"] = resource[:feedkey] if resource[:feedkey]
       returnvalue = true
-      puts "tester" 
+      puts "testie"     
       test = JSON.parse(createrepohash())
-      test.each{ |key, value|
+      importershash.each{ |key, value|
         if value.class == Hash
           value.each{ |key, value|
             if value.class == Array
@@ -79,7 +104,21 @@ Puppet::Type.type(:pulp).provide(:repository) do
           puts ""
         end
         }
-
+        @flattenhash = Hash.new
+        @flattenimporter = Hash.new
+        flattenhashes(completehash)
+        puts "flattenhash"
+        @flattenhash.each{|key,value|
+          puts key
+          puts value
+          puts ""
+        }
+         @flattenimporter.each{|key,value|
+          puts key
+          puts value
+          puts ""
+        }
+#checkparams(JSON.parse(createrepohash()), completehash)
       return true
 
     elsif res.code.to_i == 404
@@ -89,6 +128,45 @@ Puppet::Type.type(:pulp).provide(:repository) do
 
   end
   
+  def checkparams(manifest, current)
+    
+    manifest.each{ |key, value| 
+    #if key == current[key]
+        puts key
+        puts current[key]
+        puts "tis gelukt"
+        puts current["id"]
+        # else
+        
+        # end
+    }
+  end
+  
+  def flattenhashes(hash)
+    newhash = Hash.new
+    hash.each{ |key, value|
+    #puts value.class
+      case value.class.to_s
+        when "String"
+          @flattenhash[key] = value
+          puts key
+          puts value
+          #add to return hash
+        when "Array"
+          puts "####array####"
+          hasharray = Hash[*value]
+          flattenhashes(hasharray)
+          puts "###endarray###"
+        when "Hash"
+          puts "###hash###"
+          flattenhashes(value)
+          puts "##endhash##"
+        else
+          @flattenhash[key] = value
+      end
+    }
+  end
+
   def getrepo(id)
     pathvar = "/pulp/api/v2/repositories/" + id + "/"
     sendVar = creategetrepoinfohash()
