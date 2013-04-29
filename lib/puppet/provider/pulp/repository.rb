@@ -48,14 +48,6 @@ class Distributor
   @gpgkey =  @hash["distributor_config"]["gpgkey"] = resource[:gpgkey] if resource[:gpgkey]
   @relative_url =@hash["distributor_config"]["relative_url"] = resource[:repoid] 
 
- @id = @hash["distributor_id"]
-  @type_id = "yum-importer"
-  @http =  (resource[:servehttp]!=:false)
-  @https = (resource[:servehttps]!=:false)
-  @auth_ca = resource[:authca] if resource[:authca]
-  @https_ca = resource[:httpsca] if resource[:httpsca]
-  @gpgkey = resource[:gpgkey] if resource[:gpgkey]
-  @relative_url = resource [:repoid]
 
   end
 
