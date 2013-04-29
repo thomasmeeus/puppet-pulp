@@ -37,16 +37,20 @@ class Distributor
   attr_accessor :hash
 
   def initialize(distributorhash)
-
-  @hash = distributorhash
-  @id =  @hash["distributor_id"]
+  @hash = Hash[*distributorhash["distributors"]]
+  @hash.each{|key,value|
+    puts key
+    puts value
+    puts ""
+  }
+  @id =  @hash["id"]
   @type_id =  @hash["distributor_type_id"]
-  @http = @hash["distributor_config"]["http"] 
-  @https = @hash["distributor_config"]["https"]
-  @auth_ca =  @hash["distributor_config"]["auth_ca"]
-  @https_ca = @hash["distributor_config"]["https_ca"]
-  @gpgkey =  @hash["distributor_config"]["gpgkey"] = resource[:gpgkey] if resource[:gpgkey]
-  @relative_url =@hash["distributor_config"]["relative_url"] = resource[:repoid] 
+  @http = @hash["config"]["http"]
+  @https = @hash["config"]["https"]
+  @auth_ca =  @hash["config"]["auth_ca"]
+  @https_ca = @hash["config"]["https_ca"]
+  @gpgkey =  @hash["config"]["gpgkey"]  if @hash["config"]["gpgkey"]
+  @relative_url =@hash["config"]["relative_url"]
 
 
   end
@@ -64,9 +68,7 @@ class Repository
   @id = @hash["id"] 
   @display_name = @hash["display_name"] if @hash["display_name"]
   @description = @hash["description"] if @hash["description"]
-  #@repo_type = @hash.fetch("notes")["_repo-type"]
   @repo_type = @hash["notes"]["_repo-type"]
-  puts @hash
   end
 end
 
@@ -77,17 +79,13 @@ Puppet::Type.type(:pulp).provide(:repository) do
     if res.code.to_i == 200
     #puts res.body
       completehash =JSON.parse(res.body)
-      noteshash = JSON.parse(completehash.fetch("notes").to_json)
 
-      importershash = JSON.parse(completehash.fetch("importers").to_json[1..-2]) #werkt
-      importersconfig = JSON.parse(importershash.fetch("config").to_json) #werkt 
-      
-      distributorshash = JSON.parse(completehash.fetch("distributors").to_json[1..-2]) #werkt
-      distributorsconfig = JSON.parse(distributorshash.fetch("config").to_json) #werkt 
       puts "bestaat al"
 
      repo = Repository.new(completehash)
      puts repo.repo_type
+     distributor = Distributor.new(completehash)
+     puts distributor.relative_url
 
 
       return true
