@@ -13,27 +13,16 @@ class Importer
   attr_accessor :ssl_client_key
 
   def initialize(importerhash)
-  @hash 
+  @hash = importerhash
 
-  @id = 
-  @feed_url =
-  @ssl_ca_cert =
-  @ssl_client_cert =
-  @ssl_client_cert =
+  # @id = 
+  #@feed_url =
+  #@ssl_ca_cert =
+  #@ssl_client_cert =
+  #@ssl_client_cert =
 
   end
-  def createimporterhash
-      sendHash = Hash.new
-      sendHash["importer_type_id"] = "yum_importer"
-      sendHash["importer_config"] = Hash.new
-      sendHash["importer_config"]["feed_url"] = resource[:feed]
-      sendHash["importer_config"]["ssl_ca_cert"] = resource[:feedcacert] if resource[:feedcacert]
-      sendHash["importer_config"]["ssl_client_cert"] = resource[:feedcert] if resource[:feedcert]
-      sendHash["importer_config"]["ssl_client_key"] = resource[:feedkey] if resource[:feedkey]
-
-      sendVar = sendHash.to_json
-      return sendVar
-  end 
+  
 end
 
 class Distributor
@@ -47,17 +36,17 @@ class Distributor
   attr_accessor :type_id
   attr_accessor :hash
 
-  def initialize
+  def initialize(distributorhash)
 
-  @hash = Hash.new
+  @hash = distributorhash
   @id =  @hash["distributor_id"]
   @type_id =  @hash["distributor_type_id"]
   @http = @hash["distributor_config"]["http"] 
   @https = @hash["distributor_config"]["https"]
   @auth_ca =  @hash["distributor_config"]["auth_ca"]
-  @https_ca  @hash["distributor_config"]["https_ca"]
-    sendHash["distributor_config"]["gpgkey"] = resource[:gpgkey] if resource[:gpgkey]
-    sendHash["distributor_config"]["relative_url"] = resource[:repoid] #probably bug in pulp, doc says it's an optional parameter bug errors when you don't provide it. 
+  @https_ca = @hash["distributor_config"]["https_ca"]
+  @gpgkey =  @hash["distributor_config"]["gpgkey"] = resource[:gpgkey] if resource[:gpgkey]
+  @relative_url =@hash["distributor_config"]["relative_url"] = resource[:repoid] 
 
  @id = @hash["distributor_id"]
   @type_id = "yum-importer"
@@ -79,10 +68,10 @@ class Repository
   attr_accessor :repo_type
 
   def initialize
-  @id =
-  @display_name =
-  @description =
-  @repo_type =
+  #@id =
+  #@display_name =
+  #@description =
+  #@repo_type =
 
   end
 end
