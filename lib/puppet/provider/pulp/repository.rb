@@ -15,11 +15,11 @@ class Importer
   def initialize(importerhash)
   @hash = importerhash
 
-  # @id = 
-  #@feed_url =
-  #@ssl_ca_cert =
-  #@ssl_client_cert =
-  #@ssl_client_cert =
+  @id = @hash["id"]
+  @feed_url = @hash["importer_config"]["feed_url"] if @hash["importer_config"]["feed_url"]
+  @ssl_ca_cert = @hash["importer_config"]["ssl_ca_cert"] if @hash["importer_config"]["ssl_ca_cert"]
+  @ssl_client_cert = @hash["importer_config"]["ssl_client_cert"] if @hash["importer_config"]["ssl_client_cert"]  
+  @ssl_client_key = @hash["importer_config"]["ssl_client_key"] if @hash["importer_config"]["ssl_client_key"] 
 
   end
   
@@ -59,11 +59,12 @@ class Repository
   attr_accessor :description
   attr_accessor :repo_type
 
-  def initialize
-  #@id =
-  #@display_name =
-  #@description =
-  #@repo_type =
+  def initialize(repohash)
+  @hash = repohash
+  @id = @hash["id"] 
+  @display_name = @hash["display_name"] if @hash["display_name"]
+  @description = @hash["description"] if @hash["description"]
+  @repo_type = @hash["notes"]["_repo_type"]
 
   end
 end
