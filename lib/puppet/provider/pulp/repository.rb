@@ -83,82 +83,10 @@ Puppet::Type.type(:pulp).provide(:repository) do
       
       distributorshash = JSON.parse(completehash.fetch("distributors").to_json[1..-2]) #werkt
       distributorsconfig = JSON.parse(distributorshash.fetch("config").to_json) #werkt 
-      
-      conditions = Hash.new
-      conditions["id"] = resource[:repoid]
-      conditions["description"] = resource[:description]
-      conditions["display_name"] = resource[:displayname]
-      
-      conditionsnotes = Hash.new
-      conditionsnotes["_repo-type"] = resource[:repotype]
+      puts "bestaat al"
 
-      importers = Hash.new
-      importers["id"] = "yum_importer"
-
-      importersconfighash = Hash.new
-      importersconfighash["feed_url"] = resource[:feed]
-      importersconfighash["ssl_ca_cert"] = resource[:feedcacert] if resource[:feedcacert]
-      importersconfighash["ssl_client_cert"] = resource[:feedcert] if resource[:feedcert]
-      importersconfighash["ssl_client_key"] = resource[:feedkey] if resource[:feedkey]
-      returnvalue = true
-      puts "testie"     
-      test = JSON.parse(createrepohash())
-      importershash.each{ |key, value|
-        if value.class == Hash
-          value.each{ |key, value|
-            if value.class == Array
-              tester = Hash[*value]
-              tester.each{ |key, value|
-                puts key
-                puts value
-                puts ""
-              }
-            elsif value.class == Hash
-              tester.each{ |key, value|
-                puts key
-                puts value
-                puts ""
-              }
       
-            else
-              puts key
-              puts value
-              puts value.class
-              puts ""
-            end
-          }
-          elsif value.class == Array
-            puts "############################"
-            puts "#######"+ key + "############"
-            tester = Hash[*value]
-            tester.each{ |key, value|
-              puts key
-              puts value
-              puts ""
-            }
-            puts "############################"
-        else
-          puts key
-          puts value
-          puts value.class
-          puts ""
-        end
-        }
-        @flattenhash = Hash.new
-        @flattenimporter = Hash.new
-        flattenhashes(completehash)
-        puts "flattenhash"
-        @flattenhash.each{|key,value|
-          puts key
-          puts value
-          puts ""
-        }
-         @flattenimporter.each{|key,value|
-          puts key
-          puts value
-          puts ""
-        }
-#checkparams(JSON.parse(createrepohash()), completehash)
+
       return true
 
     elsif res.code.to_i == 404
@@ -168,44 +96,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
 
   end
   
-  def checkparams(manifest, current)
-    
-    manifest.each{ |key, value| 
-    #if key == current[key]
-        puts key
-        puts current[key]
-        puts "tis gelukt"
-        puts current["id"]
-        # else
-        
-        # end
-    }
-  end
   
-  def flattenhashes(hash)
-    newhash = Hash.new
-    hash.each{ |key, value|
-    #puts value.class
-      case value.class.to_s
-        when "String"
-          @flattenhash[key] = value
-          puts key
-          puts value
-          #add to return hash
-        when "Array"
-          puts "####array####"
-          hasharray = Hash[*value]
-          flattenhashes(hasharray)
-          puts "###endarray###"
-        when "Hash"
-          puts "###hash###"
-          flattenhashes(value)
-          puts "##endhash##"
-        else
-          @flattenhash[key] = value
-      end
-    }
-  end
 
   def getrepo(id)
     pathvar = "/pulp/api/v2/repositories/" + id + "/"
