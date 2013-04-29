@@ -11,14 +11,65 @@ class Importer
   attr_accessor :ssl_ca_cert
   attr_accessor :ssl_client_cert
   attr_accessor :ssl_client_key
+
+  def initialize(importerhash)
+  @hash 
+
+  @id = 
+  @feed_url =
+  @ssl_ca_cert =
+  @ssl_client_cert =
+  @ssl_client_cert =
+
+  end
+  def createimporterhash
+      sendHash = Hash.new
+      sendHash["importer_type_id"] = "yum_importer"
+      sendHash["importer_config"] = Hash.new
+      sendHash["importer_config"]["feed_url"] = resource[:feed]
+      sendHash["importer_config"]["ssl_ca_cert"] = resource[:feedcacert] if resource[:feedcacert]
+      sendHash["importer_config"]["ssl_client_cert"] = resource[:feedcert] if resource[:feedcert]
+      sendHash["importer_config"]["ssl_client_key"] = resource[:feedkey] if resource[:feedkey]
+
+      sendVar = sendHash.to_json
+      return sendVar
+  end 
 end
 
 class Distributor
   attr_accessor :id
   attr_accessor :http
   attr_accessor :https
-  attr_accessor :relatice_url
+  attr_accessor :relative_url
   attr_accessor :gpgkey
+  attr_accessor :auth_ca
+  attr_accessor :https_ca
+  attr_accessor :type_id
+  attr_accessor :hash
+
+  def initialize
+
+  @hash = Hash.new
+  @id =  @hash["distributor_id"]
+  @type_id =  @hash["distributor_type_id"]
+  @http = @hash["distributor_config"]["http"] 
+  @https = @hash["distributor_config"]["https"]
+  @auth_ca =  @hash["distributor_config"]["auth_ca"]
+  @https_ca  @hash["distributor_config"]["https_ca"]
+    sendHash["distributor_config"]["gpgkey"] = resource[:gpgkey] if resource[:gpgkey]
+    sendHash["distributor_config"]["relative_url"] = resource[:repoid] #probably bug in pulp, doc says it's an optional parameter bug errors when you don't provide it. 
+
+ @id = @hash["distributor_id"]
+  @type_id = "yum-importer"
+  @http =  (resource[:servehttp]!=:false)
+  @https = (resource[:servehttps]!=:false)
+  @auth_ca = resource[:authca] if resource[:authca]
+  @https_ca = resource[:httpsca] if resource[:httpsca]
+  @gpgkey = resource[:gpgkey] if resource[:gpgkey]
+  @relative_url = resource [:repoid]
+
+  end
+
 end
 
 class Repository
@@ -27,6 +78,13 @@ class Repository
   attr_accessor :description
   attr_accessor :repo_type
 
+  def initialize
+  @id =
+  @display_name =
+  @description =
+  @repo_type =
+
+  end
 end
 
 Puppet::Type.type(:pulp).provide(:repository) do
