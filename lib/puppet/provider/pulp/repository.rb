@@ -13,13 +13,17 @@ class Importer
   attr_accessor :ssl_client_key
 
   def initialize(importerhash)
-  @hash = importerhash
-
+  @hash = Hash[*importerhash["importers"]]
+  @hash.each{|key,value|
+    puts key
+    puts value
+    puts ""
+  }
   @id = @hash["id"]
-  @feed_url = @hash["importer_config"]["feed_url"] if @hash["importer_config"]["feed_url"]
-  @ssl_ca_cert = @hash["importer_config"]["ssl_ca_cert"] if @hash["importer_config"]["ssl_ca_cert"]
-  @ssl_client_cert = @hash["importer_config"]["ssl_client_cert"] if @hash["importer_config"]["ssl_client_cert"]  
-  @ssl_client_key = @hash["importer_config"]["ssl_client_key"] if @hash["importer_config"]["ssl_client_key"] 
+  @feed_url = @hash["config"]["feed_url"] if @hash["config"]["feed_url"]
+  @ssl_ca_cert = @hash["config"]["ssl_ca_cert"] if @hash["config"]["ssl_ca_cert"]
+  @ssl_client_cert = @hash["config"]["ssl_client_cert"] if @hash["config"]["ssl_client_cert"]  
+  @ssl_client_key = @hash["config"]["ssl_client_key"] if @hash["config"]["ssl_client_key"] 
 
   end
   
@@ -38,11 +42,6 @@ class Distributor
 
   def initialize(distributorhash)
   @hash = Hash[*distributorhash["distributors"]]
-  @hash.each{|key,value|
-    puts key
-    puts value
-    puts ""
-  }
   @id =  @hash["id"]
   @type_id =  @hash["distributor_type_id"]
   @http = @hash["config"]["http"]
@@ -82,11 +81,12 @@ Puppet::Type.type(:pulp).provide(:repository) do
 
       puts "bestaat al"
 
-     repo = Repository.new(completehash)
-     puts repo.repo_type
-     distributor = Distributor.new(completehash)
-     puts distributor.relative_url
-
+      #repo = Repository.new(completehash)
+      #puts repo.repo_type
+      #distributor = Distributor.new(completehash)
+      #puts distributor.relative_url
+      importer = Importer.new(completehash)
+      puts importer.feed_url
 
       return true
 
@@ -173,7 +173,9 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash["importer_config"]["ssl_ca_cert"] = resource[:feedcacert] if resource[:feedcacert]
     sendHash["importer_config"]["ssl_client_cert"] = resource[:feedcert] if resource[:feedcert]
     sendHash["importer_config"]["ssl_client_key"] = resource[:feedkey] if resource[:feedkey]
-
+    #sendHash["importer_config"]["num_threads"] = 3
+    #sendHash["importer_config"]["newest"] = false
+    #TODO add all importer configuration parameters
     sendVar = sendHash.to_json
     return sendVar
   end
