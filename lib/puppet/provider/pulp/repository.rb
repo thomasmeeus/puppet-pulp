@@ -64,8 +64,9 @@ class Repository
   @id = @hash["id"] 
   @display_name = @hash["display_name"] if @hash["display_name"]
   @description = @hash["description"] if @hash["description"]
-  @repo_type = @hash["notes"]["_repo_type"]
-
+  #@repo_type = @hash.fetch("notes")["_repo-type"]
+  @repo_type = @hash["notes"]["_repo-type"]
+  puts @hash
   end
 end
 
@@ -85,7 +86,9 @@ Puppet::Type.type(:pulp).provide(:repository) do
       distributorsconfig = JSON.parse(distributorshash.fetch("config").to_json) #werkt 
       puts "bestaat al"
 
-      
+     repo = Repository.new(completehash)
+     puts repo.repo_type
+
 
       return true
 
