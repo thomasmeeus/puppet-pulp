@@ -73,22 +73,16 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def exists?
     res = getrepo(resource[:repoid])
     if res.code.to_i == 200
-    #puts res.body
+      #if the repository exist fetch the configuration
       completehash =JSON.parse(res.body)
-
       puts "bestaat al"
 
       actual_repository = Repository.new(completehash)
-      #      test = createrepohash()
       manifest_repository = Repository.new(createrepohash())
-      #puts actual_repository.display_name
-      #puts createrepohash()
-      puts manifest_repository.display_name
-      #puts repo.repo_type
-      #distributor = Distributor.new(completehash)
-      #puts distributor.relative_url
-      importer = Importer.new(completehash)
-      # puts importer.feed_url
+      actual_importer = Importer.new(completehash)
+      manifest_importer = Importer.new(createimporterhash())
+      actual_distributor = Distributor.new(completehash)
+      manifest_distributor = Distributor.new(createdistributorhash())
 
       return true
 
