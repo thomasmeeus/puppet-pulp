@@ -12,14 +12,17 @@ class Importer
   attr_accessor :ssl_client_cert
   attr_accessor :ssl_client_key
 
-  def initialize(importerhash)
-  @hash = Hash[*importerhash["importers"]]
-  @id = @hash["id"]
-  @feed_url = @hash["config"]["feed_url"] if @hash["config"]["feed_url"]
-  @ssl_ca_cert = @hash["config"]["ssl_ca_cert"] if @hash["config"]["ssl_ca_cert"]
-  @ssl_client_cert = @hash["config"]["ssl_client_cert"] if @hash["config"]["ssl_client_cert"]  
-  @ssl_client_key = @hash["config"]["ssl_client_key"] if @hash["config"]["ssl_client_key"] 
-
+  def initialize(importerhash, type)
+  if type == "completehash"
+    @hash = Hash[*importerhash["importers"]]
+    @id = @hash["id"]
+    @feed_url = @hash["config"]["feed_url"] if @hash["config"]["feed_url"]
+    @ssl_ca_cert = @hash["config"]["ssl_ca_cert"] if @hash["config"]["ssl_ca_cert"]
+    @ssl_client_cert = @hash["config"]["ssl_client_cert"] if @hash["config"]["ssl_client_cert"]  
+    @ssl_client_key = @hash["config"]["ssl_client_key"] if @hash["config"]["ssl_client_key"] 
+  else
+    puts "tis een zelfgemaakte hash"
+  end
   end
   
 end
@@ -35,17 +38,20 @@ class Distributor
   attr_accessor :type_id
   attr_accessor :hash
 
-  def initialize(distributorhash)
-  @hash = Hash[*distributorhash["distributors"]]
-  @id =  @hash["id"]
-  @type_id =  @hash["distributor_type_id"]
-  @http = @hash["config"]["http"]
-  @https = @hash["config"]["https"]
-  @auth_ca =  @hash["config"]["auth_ca"]
-  @https_ca = @hash["config"]["https_ca"]
-  @gpgkey =  @hash["config"]["gpgkey"]  if @hash["config"]["gpgkey"]
-  @relative_url =@hash["config"]["relative_url"]
-
+  def initialize(distributorhash, type)
+  if type == "completehash"
+    @hash = Hash[*distributorhash["distributors"]]
+    @id =  @hash["id"]
+    @type_id =  @hash["distributor_type_id"]
+    @http = @hash["config"]["http"]
+    @https = @hash["config"]["https"]
+    @auth_ca =  @hash["config"]["auth_ca"]
+    @https_ca = @hash["config"]["https_ca"]
+    @gpgkey =  @hash["config"]["gpgkey"]  if @hash["config"]["gpgkey"]
+    @relative_url =@hash["config"]["relative_url"]
+  else
+    puts "tis een zelfgemaakte distributor hash"
+  end
 
   end
 
@@ -79,10 +85,10 @@ Puppet::Type.type(:pulp).provide(:repository) do
 
       actual_repository = Repository.new(completehash)
       manifest_repository = Repository.new(createrepohash())
-      actual_importer = Importer.new(completehash)
-      manifest_importer = Importer.new(createimporterhash())
-      actual_distributor = Distributor.new(completehash)
-      manifest_distributor = Distributor.new(createdistributorhash())
+      actual_importer = Importer.new(completehash, "completehash")
+      manifest_importer = Importer.new(createimporterhash(), "ownhash")
+      actual_distributor = Distributor.new(completehash, "completehash")
+      manifest_distributor = Distributor.new(createdistributorhash("yum_distributor"), "ownhash")
 
       return true
 
