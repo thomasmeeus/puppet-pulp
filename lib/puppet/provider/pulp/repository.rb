@@ -4,6 +4,7 @@ require 'net/https'
 require 'uri'
 require 'json'
 
+
 class Importer
 
   attr_accessor :id
@@ -24,10 +25,10 @@ class Importer
     @id = @hash["importer_type_id"]
   end
 
-    @feed_url = @hash[@config]["feed_url"] if @hash[@config]["feed_url"]
-    @ssl_ca_cert = @hash[@config]["ssl_ca_cert"] if @hash[@config]["ssl_ca_cert"]
-    @ssl_client_cert = @hash[@config]["ssl_client_cert"] if @hash[@config]["ssl_client_cert"]  
-    @ssl_client_key = @hash[@config]["ssl_client_key"] if @hash[@config]["ssl_client_key"] 
+  @feed_url = @hash[@config]["feed_url"] if @hash[@config]["feed_url"]
+  @ssl_ca_cert = @hash[@config]["ssl_ca_cert"] if @hash[@config]["ssl_ca_cert"]
+  @ssl_client_cert = @hash[@config]["ssl_client_cert"] if @hash[@config]["ssl_client_cert"]  
+  @ssl_client_key = @hash[@config]["ssl_client_key"] if @hash[@config]["ssl_client_key"] 
   end
   
 end
@@ -67,6 +68,7 @@ class Distributor
 end
 
 class Repository
+  include Comparable
   attr_accessor :id
   attr_accessor :display_name
   attr_accessor :description
@@ -78,6 +80,14 @@ class Repository
   @display_name = @hash["display_name"] if @hash["display_name"]
   @description = @hash["description"] if @hash["description"]
   @repo_type = @hash["notes"]["_repo-type"]
+  end
+
+  def ==(another_repository)
+    self.id == another_repository.id
+    self.display_name == another_repository.display_name
+    self.description == another_repository.description
+    self.repo_type == another_repository.repo_type
+
   end
 end
 
@@ -96,7 +106,11 @@ Puppet::Type.type(:pulp).provide(:repository) do
       manifest_importer = Importer.new(createimporterhash(), "ownhash")
       actual_distributor = Distributor.new(completehash, "completehash")
       manifest_distributor = Distributor.new(createdistributorhash("yum_distributor"), "ownhash")
+      puts actual_repository == manifest_repository
+      puts manifest_repository.id
+      @test = id
 
+      #TODO write actual tests
       return true
 
     elsif res.code.to_i == 404
@@ -105,8 +119,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
     end
 
   end
-  
-  
 
   def getrepo(id)
     pathvar = "/pulp/api/v2/repositories/" + id + "/"
@@ -149,7 +161,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
     #url = buildurl(pathvar) 
     url = URI::HTTPS.build({:host =>  resource[:hostname] , :path => pathvar, :query => 'details=True'})
     req = Net::HTTP::Get.new(url.request_uri)
-    #req = Net::HTTP::Get.new(url.path, url.query, initheader = {'Content-Type' =>'application/json'})
     res = query(req, url, vars)
     return res
   end
@@ -199,13 +210,12 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash["distributor_id"] = id
     sendHash["distributor_type_id"] = id
     sendHash["distributor_config"] = Hash.new
-    #sendHash["distributor_config"]["http"] = true
     sendHash["distributor_config"]["http"] = (resource[:servehttp]!=:false)
     sendHash["distributor_config"]["https"] = (resource[:servehttps]!=:false)
     sendHash["distributor_config"]["auth_ca"] = resource[:authca] if resource[:authca]
     sendHash["distributor_config"]["https_ca"] = resource[:httpsca] if resource[:httpsca]
     sendHash["distributor_config"]["gpgkey"] = resource[:gpgkey] if resource[:gpgkey]
-    sendHash["distributor_config"]["relative_url"] = resource[:repoid] #probably bug in pulp, doc says it's an optional parameter bug errors when you don't provide it. 
+    sendHash["distributor_config"]["relative_url"] = resource[:repoid]
 
     return sendHash
   end
@@ -256,7 +266,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def createrepo
     sendVar = createrepohash().to_json
     pathvar = '/pulp/api/v2/repositories/'
-
     res = postquery(pathvar, sendVar)
     
     if res.code.to_i == 201
@@ -301,7 +310,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
       fail("An unexpected error occurred")
     end
 
-  
   end
 
   def destroy
