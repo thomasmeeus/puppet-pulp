@@ -17,22 +17,13 @@ class Importer
     @hash = Hash[*importerhash["importers"]]
     @config = "config"
     @id = @hash["id"]
-    @feed_url = @hash["config"]["feed_url"] if @hash["config"]["feed_url"]
-    @ssl_ca_cert = @hash["config"]["ssl_ca_cert"] if @hash["config"]["ssl_ca_cert"]
-    @ssl_client_cert = @hash["config"]["ssl_client_cert"] if @hash["config"]["ssl_client_cert"]  
-    @ssl_client_key = @hash["config"]["ssl_client_key"] if @hash["config"]["ssl_client_key"] 
   else
     puts "tis een zelfgemaakte hash"
     @hash = importerhash
     @config = "importer_config"
     @id = @hash["importer_type_id"]
-    @feed_url = @hash["importer_config"]["feed_url"] if @hash["importer_config"]["feed_url"]
-    @ssl_ca_cert = @hash["importer_config"]["ssl_ca_cert"] if @hash["importer_config"]["ssl_ca_cert"]
-    @ssl_client_cert = @hash["importer_config"]["ssl_client_cert"] if @hash["importer_config"]["ssl_client_cert"]  
-    @ssl_client_key = @hash["importer_config"]["ssl_client_key"] if @hash["importer_config"]["ssl_client_key"] 
   end
 
-    @id = @hash["id"]
     @feed_url = @hash[@config]["feed_url"] if @hash[@config]["feed_url"]
     @ssl_ca_cert = @hash[@config]["ssl_ca_cert"] if @hash[@config]["ssl_ca_cert"]
     @ssl_client_cert = @hash[@config]["ssl_client_cert"] if @hash[@config]["ssl_client_cert"]  
@@ -56,17 +47,21 @@ class Distributor
   if type == "completehash"
     @hash = Hash[*distributorhash["distributors"]]
     @id =  @hash["id"]
-    @type_id =  @hash["distributor_type_id"]
-    @http = @hash["config"]["http"]
-    @https = @hash["config"]["https"]
-    @auth_ca =  @hash["config"]["auth_ca"]
-    @https_ca = @hash["config"]["https_ca"]
-    @gpgkey =  @hash["config"]["gpgkey"]  if @hash["config"]["gpgkey"]
-    @relative_url =@hash["config"]["relative_url"]
+    @config = "config"
   else
     puts "tis een zelfgemaakte distributor hash"
+    @hash = distributorhash
+    @config = "distributor_config"
+    @id =  @hash["distributor_id"]
   end
 
+    @type_id =  @hash["distributor_type_id"]
+    @http = @hash[@config]["http"]
+    @https = @hash[@config]["https"]
+    @auth_ca =  @hash[@config]["auth_ca"]
+    @https_ca = @hash[@config]["https_ca"]
+    @gpgkey =  @hash[@config]["gpgkey"]  if @hash[@config]["gpgkey"]
+    @relative_url =@hash[@config]["relative_url"]
   end
 
 end
