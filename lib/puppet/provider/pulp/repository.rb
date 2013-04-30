@@ -14,11 +14,6 @@ class Importer
 
   def initialize(importerhash)
   @hash = Hash[*importerhash["importers"]]
-  @hash.each{|key,value|
-    puts key
-    puts value
-    puts ""
-  }
   @id = @hash["id"]
   @feed_url = @hash["config"]["feed_url"] if @hash["config"]["feed_url"]
   @ssl_ca_cert = @hash["config"]["ssl_ca_cert"] if @hash["config"]["ssl_ca_cert"]
@@ -64,8 +59,10 @@ class Repository
 
   def initialize(repohash)
   @hash = repohash
+  puts @hash.class
   @id = @hash["id"] 
   @display_name = @hash["display_name"] if @hash["display_name"]
+  puts @display_name
   @description = @hash["description"] if @hash["description"]
   @repo_type = @hash["notes"]["_repo-type"]
   end
@@ -81,12 +78,17 @@ Puppet::Type.type(:pulp).provide(:repository) do
 
       puts "bestaat al"
 
-      #repo = Repository.new(completehash)
+      actual_repository = Repository.new(completehash)
+      #      test = createrepohash()
+      manifest_repository = Repository.new(createrepohash())
+      #puts actual_repository.display_name
+      #puts createrepohash()
+      puts manifest_repository.display_name
       #puts repo.repo_type
       #distributor = Distributor.new(completehash)
       #puts distributor.relative_url
       importer = Importer.new(completehash)
-      puts importer.feed_url
+      # puts importer.feed_url
 
       return true
 
@@ -161,8 +163,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash["notes"] = Hash.new
     sendHash["notes"]["_repo-type"] = resource[:repotype]
     #TODO add extra note fields
-    sendVar = sendHash.to_json
-    return sendVar
+    return sendHash
   end
 
   def createimporterhash
@@ -176,8 +177,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     #sendHash["importer_config"]["num_threads"] = 3
     #sendHash["importer_config"]["newest"] = false
     #TODO add all importer configuration parameters
-    sendVar = sendHash.to_json
-    return sendVar
+    return sendHash
   end
   
   def creategetrepoinfohash
@@ -200,12 +200,11 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash["distributor_config"]["gpgkey"] = resource[:gpgkey] if resource[:gpgkey]
     sendHash["distributor_config"]["relative_url"] = resource[:repoid] #probably bug in pulp, doc says it's an optional parameter bug errors when you don't provide it. 
 
-    sendVar = sendHash.to_json
-    return sendVar
+    return sendHash
   end
 
   def createimporter
-    sendVar = createimporterhash()
+    sendVar = createimporterhash().to_json
     pathvar = '/pulp/api/v2/repositories/' + resource[:repoid] + '/importers/'
     res = postquery(pathvar, sendVar)
 
@@ -227,7 +226,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
 
   def createdistributor(id)
-    sendVar = createdistributorhash(id)
+    sendVar = createdistributorhash(id).to_json
     pathvar = '/pulp/api/v2/repositories/' + resource[:repoid] + '/distributors/'
     res = postquery(pathvar, sendVar)
     if res.code.to_i == 201
@@ -248,7 +247,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
   
   def createrepo
-    sendVar = createrepohash()
+    sendVar = createrepohash().to_json
     pathvar = '/pulp/api/v2/repositories/'
 
     res = postquery(pathvar, sendVar)
