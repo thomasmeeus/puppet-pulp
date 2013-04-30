@@ -58,8 +58,8 @@ class Distributor
     @type_id =  @hash["distributor_type_id"]
     @http = @hash[@config]["http"]
     @https = @hash[@config]["https"]
-    @auth_ca =  @hash[@config]["auth_ca"]
-    @https_ca = @hash[@config]["https_ca"]
+    @auth_ca =  @hash[@config]["auth_ca"] if @hash[@config]["auth_ca"]
+    @https_ca = @hash[@config]["https_ca"] if @hash[@config]["https_ca"]
     @gpgkey =  @hash[@config]["gpgkey"]  if @hash[@config]["gpgkey"]
     @relative_url =@hash[@config]["relative_url"]
   end
