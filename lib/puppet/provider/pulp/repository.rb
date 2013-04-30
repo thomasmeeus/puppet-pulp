@@ -15,6 +15,7 @@ class Importer
   def initialize(importerhash, type)
   if type == "completehash"
     @hash = Hash[*importerhash["importers"]]
+    @config = "config"
     @id = @hash["id"]
     @feed_url = @hash["config"]["feed_url"] if @hash["config"]["feed_url"]
     @ssl_ca_cert = @hash["config"]["ssl_ca_cert"] if @hash["config"]["ssl_ca_cert"]
@@ -22,7 +23,20 @@ class Importer
     @ssl_client_key = @hash["config"]["ssl_client_key"] if @hash["config"]["ssl_client_key"] 
   else
     puts "tis een zelfgemaakte hash"
+    @hash = importerhash
+    @config = "importer_config"
+    @id = @hash["importer_type_id"]
+    @feed_url = @hash["importer_config"]["feed_url"] if @hash["importer_config"]["feed_url"]
+    @ssl_ca_cert = @hash["importer_config"]["ssl_ca_cert"] if @hash["importer_config"]["ssl_ca_cert"]
+    @ssl_client_cert = @hash["importer_config"]["ssl_client_cert"] if @hash["importer_config"]["ssl_client_cert"]  
+    @ssl_client_key = @hash["importer_config"]["ssl_client_key"] if @hash["importer_config"]["ssl_client_key"] 
   end
+
+    @id = @hash["id"]
+    @feed_url = @hash[@config]["feed_url"] if @hash[@config]["feed_url"]
+    @ssl_ca_cert = @hash[@config]["ssl_ca_cert"] if @hash[@config]["ssl_ca_cert"]
+    @ssl_client_cert = @hash[@config]["ssl_client_cert"] if @hash[@config]["ssl_client_cert"]  
+    @ssl_client_key = @hash[@config]["ssl_client_key"] if @hash[@config]["ssl_client_key"] 
   end
   
 end
@@ -65,10 +79,8 @@ class Repository
 
   def initialize(repohash)
   @hash = repohash
-  puts @hash.class
   @id = @hash["id"] 
   @display_name = @hash["display_name"] if @hash["display_name"]
-  puts @display_name
   @description = @hash["description"] if @hash["description"]
   @repo_type = @hash["notes"]["_repo-type"]
   end
@@ -275,7 +287,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
     # createdistributor("export_distributor")
     createdistributor("yum_distributor")
     res = getrepo(resource[:repoid])
-    #puts res.body #TODO remove
    
   end
 
