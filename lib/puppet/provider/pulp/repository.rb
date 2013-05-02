@@ -86,7 +86,9 @@ class Repository
     self.id == another_repository.id
     self.display_name == another_repository.display_name
     self.description == another_repository.description
-    self.repo_type == another_repository.repo_type
+    puts self.description 
+    puts another_repository.description
+    #self.repo_type == another_repository.repo_type
 
   end
 end
@@ -106,15 +108,27 @@ Puppet::Type.type(:pulp).provide(:repository) do
       manifest_importer = Importer.new(createimporterhash(), "ownhash")
       actual_distributor = Distributor.new(completehash, "completehash")
       manifest_distributor = Distributor.new(createdistributorhash("yum_distributor"), "ownhash")
-      puts actual_repository == manifest_repository
-      puts manifest_repository.id
-      @test = id
-
+      checkrepo(actual_repository.id, manifest_repository.id)
+      #      puts actual_repository.instance_variables.map
+      #puts actual_distributor.instance_variables.map
       #TODO write actual tests
       return true
 
     elsif res.code.to_i == 404
       puts "bestaat nog ni"
+      return false
+    end
+
+  end
+
+  def checkrepo(actualrepo, manifestrepo)
+    
+    if actualrepo == manifestrepo
+      puts actualrepo
+      puts manifestrepo
+      return true
+
+    else 
       return false
     end
 
