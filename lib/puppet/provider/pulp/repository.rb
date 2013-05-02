@@ -22,10 +22,10 @@ class Importer
     @id = @hash["importer_type_id"]
   end
 
-  @feed_url = @hash[@config]["feed_url"] if @hash[@config]["feed_url"]
-  @ssl_ca_cert = @hash[@config]["ssl_ca_cert"] if @hash[@config]["ssl_ca_cert"]
-  @ssl_client_cert = @hash[@config]["ssl_client_cert"] if @hash[@config]["ssl_client_cert"]  
-  @ssl_client_key = @hash[@config]["ssl_client_key"] if @hash[@config]["ssl_client_key"] 
+  @feed_url = @hash[@config]["feed_url"] #if @hash[@config]["feed_url"]
+  @ssl_ca_cert = @hash[@config]["ssl_ca_cert"] #if @hash[@config]["ssl_ca_cert"]
+  @ssl_client_cert = @hash[@config]["ssl_client_cert"] #if @hash[@config]["ssl_client_cert"]  
+  @ssl_client_key = @hash[@config]["ssl_client_key"]# if @hash[@config]["ssl_client_key"] 
   end
   
 end
@@ -55,20 +55,22 @@ class Distributor
     @type_id =  @hash["distributor_type_id"]
     @http = @hash[@config]["http"]
     @https = @hash[@config]["https"]
-    @auth_ca =  @hash[@config]["auth_ca"] if @hash[@config]["auth_ca"]
-    @https_ca = @hash[@config]["https_ca"] if @hash[@config]["https_ca"]
-    @gpgkey =  @hash[@config]["gpgkey"]  if @hash[@config]["gpgkey"]
+    @auth_ca =  @hash[@config]["auth_ca"] #if @hash[@config]["auth_ca"]
+    @https_ca = @hash[@config]["https_ca"] #if @hash[@config]["https_ca"]
+    @gpgkey =  @hash[@config]["gpgkey"]  #if @hash[@config]["gpgkey"]
     @relative_url =@hash[@config]["relative_url"]
   end
 
 end
 
 class Repository
-  attr_accessor :id
-  attr_accessor :display_name
-  attr_accessor :description
-  attr_accessor :repo_type
-
+  $CONFIGURABLE_ATTRIBUTES = [
+    :id,
+    :display_name,
+    :description,
+    :repo_type
+  ]
+  attr_accessor *$CONFIGURABLE_ATTRIBUTES
   def initialize(repohash)
   @hash = repohash
   @id = @hash["id"] 
@@ -95,29 +97,29 @@ Puppet::Type.type(:pulp).provide(:repository) do
       manifest_distributor = Distributor.new(createdistributorhash("yum_distributor"), "ownhash")
       
       check_repo = Hash.new
-      check_repo["id"] = comparevalue(actual_repository.id, manifest_repository.id)
-      check_repo["display_name"] = comparevalue(actual_repository.display_name, manifest_repository.display_name)
-      check_repo["description"] = comparevalue(actual_repository.description, manifest_repository.description)
-      check_repo["repo_type"] = comparevalue(actual_repository.repo_type, manifest_repository.repo_type)
+      actual_repository.instance_variables.each do |attribute_name|
+        if attribute_name.to_s != "@hash"
+          check_repo[attribute_name] = comparevalue(actual_repository.instance_variable_get(attribute_name), manifest_repository.instance_variable_get(attribute_name))
+        end
+      end
       checkrepo(check_repo)
 
       check_importer = Hash.new
-      check_importer["id"] = comparevalue(actual_importer.id, manifest_importer.id)
-      check_importer["feed_url"] = comparevalue(actual_importer.feed_url, manifest_importer.feed_url)
-      check_importer["ssl_ca_cert"] = comparevalue(actual_importer.ssl_ca_cert, manifest_importer.ssl_ca_cert)
-      check_importer["ssl_client_cert"] = comparevalue(actual_importer.ssl_client_cert, manifest_importer.ssl_client_cert)
-      check_importer["ssl_client_key"] = comparevalue(actual_importer.ssl_client_key, manifest_importer.ssl_client_key)
+      actual_importer.instance_variables.each do |attribute_name|
+        if attribute_name.to_s != "@hash" && attribute_name.to_s != "@config"
+        puts attribute_name
+          check_importer[attribute_name] = comparevalue(actual_importer.instance_variable_get(attribute_name), manifest_importer.instance_variable_get(attribute_name))
+        end
+      end
       checkimporter(check_importer)
-
+      
       check_distributor = Hash.new
-      check_distributor["id"] = comparevalue(actual_distributor.id, manifest_distributor.id)
-      check_distributor["http"] = comparevalue(actual_distributor.http, manifest_distributor.http)
-      check_distributor["https"] = comparevalue(actual_distributor.https, manifest_distributor.https)
-      check_distributor["relative_url"] = comparevalue(actual_distributor.relative_url, manifest_distributor.relative_url)
-      check_distributor["gpgkey"] = comparevalue(actual_distributor.gpgkey, manifest_distributor.gpgkey)
-      check_distributor["auth_ca"] = comparevalue(actual_distributor.auth_ca, manifest_distributor.auth_ca)
-      check_distributor["https_ca"] = comparevalue(actual_distributor.https_ca, manifest_distributor.https_ca)
-      check_distributor["type_id"] = comparevalue(actual_distributor.type_id, manifest_distributor.type_id)
+      actual_distributor.instance_variables.each do |attribute_name|
+        if attribute_name.to_s != "@hash" && attribute_name.to_s != "@config"
+        puts attribute_name
+          check_distributor[attribute_name] = comparevalue(actual_distributor.instance_variable_get(attribute_name), manifest_distributor.instance_variable_get(attribute_name))
+        end
+      end
       checkdistributor(check_distributor)
       return true
 
@@ -130,6 +132,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def checkdistributor(checkdistributorhash)
     checkdistributorhash.each{ |key, value|
       if value == false
+        puts "update distributor"
         deletedistributor(resource[:repoid])
         createdistributor("yum_distributor")
       end
@@ -139,6 +142,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def checkimporter(checkimporterhash)
     checkimporterhash.each{ |key, value|
       if value == false
+        puts "update importer"
         createimporter()
       end
     }
