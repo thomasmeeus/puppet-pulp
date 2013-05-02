@@ -116,8 +116,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
       check_repo["repo_type"] = comparevalue(actual_repository.repo_type, manifest_repository.repo_type)
       checkrepo(check_repo)
 
-      #      puts actual_repository.instance_variables.map
-      #puts actual_distributor.instance_variables.map
       #TODO write actual tests
       return true
 
@@ -134,6 +132,10 @@ Puppet::Type.type(:pulp).provide(:repository) do
       puts key
       puts value
       puts ""
+      if value == false
+        puts "a value is false" 
+        update(createrepohash)
+      end
     }
 
 
@@ -147,6 +149,8 @@ Puppet::Type.type(:pulp).provide(:repository) do
       return true
 
     else 
+      puts actualrepo
+      puts manifestrepo
       return false
     end
 
@@ -326,10 +330,15 @@ Puppet::Type.type(:pulp).provide(:repository) do
    
   end
 
-  def update
+  def update(sendHash)
     pathvar = '/pulp/api/v2/repositories/' + resource[:repoid] +  '/'
-    res = putquery(pathvar, sendHash)
-
+    puts sendHash
+    puts resource[:repoid]
+    update_hash = Hash.new
+    update_hash["delta"] = sendHash
+    puts update_hash.to_json
+    res = putquery(pathvar, update_hash.to_json)
+    puts res.code
     if res.code.to_i == 200
       Puppet.debug("The update is executed and succesfull")
     elsif res.code.to_i == 202
@@ -339,6 +348,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     elsif res.code.to_i == 400
       fail("One or more of the parameters is invalid")
     else 
+      puts res
       fail("An unexpected error occurred")
     end
 
