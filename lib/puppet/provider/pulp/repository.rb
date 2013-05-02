@@ -116,7 +116,11 @@ Puppet::Type.type(:pulp).provide(:repository) do
       check_repo["repo_type"] = comparevalue(actual_repository.repo_type, manifest_repository.repo_type)
       checkrepo(check_repo)
 
-      #TODO write actual tests
+      #TODO write distributor tests
+      check_importer = Hash.new
+
+
+
       return true
 
     elsif res.code.to_i == 404
@@ -134,7 +138,12 @@ Puppet::Type.type(:pulp).provide(:repository) do
       puts ""
       if value == false
         puts "a value is false" 
-        update(createrepohash)
+      
+        update_hash = Hash.new
+        update_hash["delta"] = createrepohash()
+        puts update_hash.to_json
+        
+        update(update_hash.to_json)
       end
     }
 
@@ -332,12 +341,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
 
   def update(sendHash)
     pathvar = '/pulp/api/v2/repositories/' + resource[:repoid] +  '/'
-    puts sendHash
-    puts resource[:repoid]
-    update_hash = Hash.new
-    update_hash["delta"] = sendHash
-    puts update_hash.to_json
-    res = putquery(pathvar, update_hash.to_json)
+    res = putquery(pathvar, sendHash)
     puts res.code
     if res.code.to_i == 200
       Puppet.debug("The update is executed and succesfull")
