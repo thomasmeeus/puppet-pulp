@@ -108,7 +108,14 @@ Puppet::Type.type(:pulp).provide(:repository) do
       manifest_importer = Importer.new(createimporterhash(), "ownhash")
       actual_distributor = Distributor.new(completehash, "completehash")
       manifest_distributor = Distributor.new(createdistributorhash("yum_distributor"), "ownhash")
-      checkrepo(actual_repository.id, manifest_repository.id)
+      
+      check_repo = Hash.new
+      check_repo["id"] = comparevalue(actual_repository.id, manifest_repository.id)
+      check_repo["display_name"] = comparevalue(actual_repository.display_name, manifest_repository.display_name)
+      check_repo["description"] = comparevalue(actual_repository.description, manifest_repository.description)
+      check_repo["repo_type"] = comparevalue(actual_repository.repo_type, manifest_repository.repo_type)
+      checkrepo(check_repo)
+
       #      puts actual_repository.instance_variables.map
       #puts actual_distributor.instance_variables.map
       #TODO write actual tests
@@ -121,7 +128,18 @@ Puppet::Type.type(:pulp).provide(:repository) do
 
   end
 
-  def checkrepo(actualrepo, manifestrepo)
+  def checkrepo(checkrepohash)
+  
+    checkrepohash.each { |key, value|
+      puts key
+      puts value
+      puts ""
+    }
+
+
+  end
+
+  def comparevalue(actualrepo, manifestrepo)
     
     if actualrepo == manifestrepo
       puts actualrepo
