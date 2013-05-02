@@ -22,10 +22,10 @@ class Importer
     @id = @hash["importer_type_id"]
   end
 
-  @feed_url = @hash[@config]["feed_url"] #if @hash[@config]["feed_url"]
-  @ssl_ca_cert = @hash[@config]["ssl_ca_cert"] #if @hash[@config]["ssl_ca_cert"]
-  @ssl_client_cert = @hash[@config]["ssl_client_cert"] #if @hash[@config]["ssl_client_cert"]  
-  @ssl_client_key = @hash[@config]["ssl_client_key"]# if @hash[@config]["ssl_client_key"] 
+  @feed_url = @hash[@config]["feed_url"] if @hash[@config]["feed_url"]
+  @ssl_ca_cert = @hash[@config]["ssl_ca_cert"] if @hash[@config]["ssl_ca_cert"]
+  @ssl_client_cert = @hash[@config]["ssl_client_cert"] if @hash[@config]["ssl_client_cert"]  
+  @ssl_client_key = @hash[@config]["ssl_client_key"] if @hash[@config]["ssl_client_key"] 
   end
   
 end
@@ -107,16 +107,30 @@ Puppet::Type.type(:pulp).provide(:repository) do
       check_importer = Hash.new
       actual_importer.instance_variables.each do |attribute_name|
         if attribute_name.to_s != "@hash" && attribute_name.to_s != "@config"
-        puts attribute_name
           check_importer[attribute_name] = comparevalue(actual_importer.instance_variable_get(attribute_name), manifest_importer.instance_variable_get(attribute_name))
         end
       end
       checkimporter(check_importer)
       
+      check_importer = Hash.new
+      manifest_importer.instance_variables.each do |attribute_name|
+        if attribute_name.to_s != "@hash" && attribute_name.to_s != "@config"
+          check_importer[attribute_name] = comparevalue(actual_importer.instance_variable_get(attribute_name), manifest_importer.instance_variable_get(attribute_name))
+        end
+      end
+      checkimporter(check_importer)
+
       check_distributor = Hash.new
       actual_distributor.instance_variables.each do |attribute_name|
         if attribute_name.to_s != "@hash" && attribute_name.to_s != "@config"
-        puts attribute_name
+          check_distributor[attribute_name] = comparevalue(actual_distributor.instance_variable_get(attribute_name), manifest_distributor.instance_variable_get(attribute_name))
+        end
+      end
+      checkdistributor(check_distributor)
+
+      check_distributor = Hash.new
+      manifest_distributor.instance_variables.each do |attribute_name|
+        if attribute_name.to_s != "@hash" && attribute_name.to_s != "@config"
           check_distributor[attribute_name] = comparevalue(actual_distributor.instance_variable_get(attribute_name), manifest_distributor.instance_variable_get(attribute_name))
         end
       end
