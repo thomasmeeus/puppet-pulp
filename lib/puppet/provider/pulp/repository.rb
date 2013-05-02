@@ -117,8 +117,15 @@ Puppet::Type.type(:pulp).provide(:repository) do
       checkrepo(check_repo)
 
       #TODO write distributor tests
+      puts actual_importer.id
+      puts manifest_importer.id
       check_importer = Hash.new
-
+      check_importer["id"] = comparevalue(actual_importer.id, manifest_importer.id)
+      check_importer["feed_url"] = comparevalue(actual_importer.feed_url, manifest_importer.feed_url)
+      check_importer["ssl_ca_cert"] = comparevalue(actual_importer.ssl_ca_cert, manifest_importer.ssl_ca_cert)
+      check_importer["ssl_client_cert"] = comparevalue(actual_importer.ssl_client_cert, manifest_importer.ssl_client_cert)
+      check_importer["ssl_client_key"] = comparevalue(actual_importer.ssl_client_key, manifest_importer.ssl_client_key)
+      checkimporter(check_importer)
 
 
       return true
@@ -130,12 +137,25 @@ Puppet::Type.type(:pulp).provide(:repository) do
 
   end
 
+  def checkimporter(checkimporterhash)
+    checkimporterhash.each{ |key, value|
+      if value == false
+        puts "a value is false"
+        puts key
+        puts value
+        createimporter()
+      else
+        puts "the value is true"
+        puts key
+        puts value
+      end
+    }
+
+  end
+
   def checkrepo(checkrepohash)
   
     checkrepohash.each { |key, value|
-      puts key
-      puts value
-      puts ""
       if value == false
         puts "a value is false" 
       
