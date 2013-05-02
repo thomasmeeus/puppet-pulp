@@ -116,9 +116,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
       check_repo["repo_type"] = comparevalue(actual_repository.repo_type, manifest_repository.repo_type)
       checkrepo(check_repo)
 
-      #TODO write distributor tests
-      puts actual_importer.id
-      puts manifest_importer.id
       check_importer = Hash.new
       check_importer["id"] = comparevalue(actual_importer.id, manifest_importer.id)
       check_importer["feed_url"] = comparevalue(actual_importer.feed_url, manifest_importer.feed_url)
@@ -127,7 +124,16 @@ Puppet::Type.type(:pulp).provide(:repository) do
       check_importer["ssl_client_key"] = comparevalue(actual_importer.ssl_client_key, manifest_importer.ssl_client_key)
       checkimporter(check_importer)
 
-
+      check_distributor = Hash.new
+      check_distributor["id"] = comparevalue(actual_distributor.id, manifest_distributor.id)
+      check_distributor["http"] = comparevalue(actual_distributor.http, manifest_distributor.http)
+      check_distributor["https"] = comparevalue(actual_distributor.https, manifest_distributor.https)
+      check_distributor["relative_url"] = comparevalue(actual_distributor.relative_url, manifest_distributor.relative_url)
+      check_distributor["gpgkey"] = comparevalue(actual_distributor.gpgkey, manifest_distributor.gpgkey)
+      check_distributor["auth_ca"] = comparevalue(actual_distributor.auth_ca, manifest_distributor.auth_ca)
+      check_distributor["https_ca"] = comparevalue(actual_distributor.https_ca, manifest_distributor.https_ca)
+      check_distributor["type_id"] = comparevalue(actual_distributor.type_id, manifest_distributor.type_id)
+      checkdistributor(check_distributor)
       return true
 
     elsif res.code.to_i == 404
@@ -136,18 +142,24 @@ Puppet::Type.type(:pulp).provide(:repository) do
     end
 
   end
+  
+  def checkdistributor(checkdistributorhash)
+    checkdistributorhash.each{ |key, value|
+      puts key
+      puts value
+      if value == false
+        pathvar = '/pulp/api/v2/repositories/' + resource[:repoid] + '/distributors/' + resource[:repoid] + '/'
+        res = deletequery(pathvar)
+        puts res.code
+        createdistributor("yum_distributor")
+      end
+    }
+  end
 
   def checkimporter(checkimporterhash)
     checkimporterhash.each{ |key, value|
       if value == false
-        puts "a value is false"
-        puts key
-        puts value
         createimporter()
-      else
-        puts "the value is true"
-        puts key
-        puts value
       end
     }
 
@@ -157,12 +169,8 @@ Puppet::Type.type(:pulp).provide(:repository) do
   
     checkrepohash.each { |key, value|
       if value == false
-        puts "a value is false" 
-      
         update_hash = Hash.new
         update_hash["delta"] = createrepohash()
-        puts update_hash.to_json
-        
         update(update_hash.to_json)
       end
     }
@@ -171,18 +179,11 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
 
   def comparevalue(actualrepo, manifestrepo)
-    
     if actualrepo == manifestrepo
-      puts actualrepo
-      puts manifestrepo
       return true
-
     else 
-      puts actualrepo
-      puts manifestrepo
       return false
     end
-
   end
 
   def getrepo(id)
@@ -272,7 +273,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
 
   def createdistributorhash(id)
     sendHash = Hash.new
-    sendHash["distributor_id"] = id
+    sendHash["distributor_id"] = resource[:repoid]
     sendHash["distributor_type_id"] = id
     sendHash["distributor_config"] = Hash.new
     sendHash["distributor_config"]["http"] = (resource[:servehttp]!=:false)
@@ -304,6 +305,10 @@ Puppet::Type.type(:pulp).provide(:repository) do
     else 
       fail("An unexpected test error occurred" + res.code )
     end
+
+  end
+  
+  def deletedistributor(id)
 
   end
 
