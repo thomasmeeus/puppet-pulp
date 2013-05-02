@@ -19,7 +19,6 @@ class Importer
     @config = "config"
     @id = @hash["id"]
   else
-    puts "tis een zelfgemaakte hash"
     @hash = importerhash
     @config = "importer_config"
     @id = @hash["importer_type_id"]
@@ -50,7 +49,6 @@ class Distributor
     @id =  @hash["id"]
     @config = "config"
   else
-    puts "tis een zelfgemaakte distributor hash"
     @hash = distributorhash
     @config = "distributor_config"
     @id =  @hash["distributor_id"]
@@ -82,15 +80,6 @@ class Repository
   @repo_type = @hash["notes"]["_repo-type"]
   end
 
-  def ==(another_repository)
-    self.id == another_repository.id
-    self.display_name == another_repository.display_name
-    self.description == another_repository.description
-    puts self.description 
-    puts another_repository.description
-    #self.repo_type == another_repository.repo_type
-
-  end
 end
 
 Puppet::Type.type(:pulp).provide(:repository) do
@@ -100,7 +89,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
     if res.code.to_i == 200
       #if the repository exist fetch the configuration
       completehash =JSON.parse(res.body)
-      puts "bestaat al"
 
       actual_repository = Repository.new(completehash)
       manifest_repository = Repository.new(createrepohash())
@@ -137,7 +125,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
       return true
 
     elsif res.code.to_i == 404
-      puts "bestaat nog ni"
       return false
     end
 
@@ -145,12 +132,8 @@ Puppet::Type.type(:pulp).provide(:repository) do
   
   def checkdistributor(checkdistributorhash)
     checkdistributorhash.each{ |key, value|
-      puts key
-      puts value
       if value == false
-        pathvar = '/pulp/api/v2/repositories/' + resource[:repoid] + '/distributors/' + resource[:repoid] + '/'
-        res = deletequery(pathvar)
-        puts res.code
+        deletedistributor(resource[:repoid])
         createdistributor("yum_distributor")
       end
     }
@@ -309,7 +292,8 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
   
   def deletedistributor(id)
-
+    pathvar = '/pulp/api/v2/repositories/' + id + '/distributors/' + id + '/'
+    deletequery(pathvar)
   end
 
   def createdistributor(id)
@@ -367,7 +351,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def update(sendHash)
     pathvar = '/pulp/api/v2/repositories/' + resource[:repoid] +  '/'
     res = putquery(pathvar, sendHash)
-    puts res.code
     if res.code.to_i == 200
       Puppet.debug("The update is executed and succesfull")
     elsif res.code.to_i == 202
@@ -377,7 +360,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
     elsif res.code.to_i == 400
       fail("One or more of the parameters is invalid")
     else 
-      puts res
       fail("An unexpected error occurred")
     end
 
