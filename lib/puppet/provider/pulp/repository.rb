@@ -4,9 +4,7 @@ require 'net/https'
 require 'uri'
 require 'json'
 
-
 class Importer
-
   attr_accessor :id
   attr_accessor :feed_url
   attr_accessor :ssl_ca_cert
@@ -66,7 +64,6 @@ class Distributor
 end
 
 class Repository
-  include Comparable
   attr_accessor :id
   attr_accessor :display_name
   attr_accessor :description
@@ -149,7 +146,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
 
   def checkrepo(checkrepohash)
-  
     checkrepohash.each { |key, value|
       if value == false
         update_hash = Hash.new
@@ -157,8 +153,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
         update(update_hash.to_json)
       end
     }
-
-
   end
 
   def comparevalue(actualrepo, manifestrepo)
@@ -265,7 +259,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash["distributor_config"]["https_ca"] = resource[:httpsca] if resource[:httpsca]
     sendHash["distributor_config"]["gpgkey"] = resource[:gpgkey] if resource[:gpgkey]
     sendHash["distributor_config"]["relative_url"] = resource[:repoid]
-
     return sendHash
   end
 
@@ -334,7 +327,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
     else 
       fail("An unexpected test error occurred" + res.code )
     end
-
   end
 
   def create
@@ -345,7 +337,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
     # createdistributor("export_distributor")
     createdistributor("yum_distributor")
     res = getrepo(resource[:repoid])
-   
   end
 
   def update(sendHash)
@@ -362,7 +353,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
     else 
       fail("An unexpected error occurred")
     end
-
   end
 
   def destroy
