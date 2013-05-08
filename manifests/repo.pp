@@ -1,16 +1,15 @@
-#Class pup::repo
+# Class pulp::repo
 #
-class pulp::repo(
+class pulp::repo (
   $repo_enabled = true
 ){
   if $repo_enabled == true {
     yumrepo {'rhel-pulp':
-      name     => 'Pulp v2 Production Releases',
-      descr    => 'Pulp v2 Production Releases',
-      baseurl  => 'http://repos.fedorapeople.org/repos/pulp/pulp/v2/stable/$releasever/$basearch/',
+      name     => 'pulp-v2-stable',
+      descr    => 'Pulp Community Releases',
+      baseurl  => 'http://repos.fedorapeople.org/repos/pulp/pulp/v2/stable/6Server/$basearch/',
       enabled  => '1',
       gpgcheck => '0',
     }
   }
 }
-

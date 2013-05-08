@@ -1,4 +1,4 @@
-# Class: pulp::package
+# = Class: pulp::package
 class pulp::package {
   package {
     'pulp':
@@ -9,12 +9,12 @@ class pulp::package {
 
   file {
     '/var/lib/pulp/init.flag':
-      require =>Exec['pulpinit']
+      require => Exec['pulpinit']
   }
 
   exec { 'pulpinit':
-    command => '/etc.init.d/pulp-server init && touch /var/lib/pulp/init.flag',
-    creates => '/var/lib/pulp/init.flag',
-    require => Package['pulp'],
+    command     => '/etc/init.d/pulp-server init && touch /var/lib/pulp/init.flag',
+    creates     => '/var/lib/pulp/init.flag',
+    require     => Package['pulp'],
   }
 }

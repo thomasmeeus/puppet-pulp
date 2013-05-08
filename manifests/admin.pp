@@ -1,11 +1,13 @@
-# Class pulp::admin
-class pulp::admin
-$pulp_server_host = Facter.value('fqdn')
-$pulp_server_port = '443'
-){
-  $packagelist = ['pulp-admin-client', 'pulp-puppet-admin-extensions', 'pulp-rpm-admin-extensions']
+# class pulp::admin
+class pulp::admin (
+$pulp_server_host = $fqdn,
+$pulp_server_port = '443',
+$package_version   = 'installed'
+) {
+
+  $packagelist = ['pulp-admin-client', 'pulp-puppet-admin-extensions','pulp-rpm-admin-extensions']
   package { $packagelist:
-    ensure => 'installed',
+    ensure  => $package_version,
   }
   file { '/etc/pulp/admin/admin.conf':
     ensure  => 'file',
@@ -13,6 +15,6 @@ $pulp_server_port = '443'
     mode    => '0644',
     owner   => 'root',
     group   => 'root',
-    require => Package[$packgelist],
+    require => Package[$packagelist],
   }
 }
