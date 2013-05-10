@@ -10,10 +10,7 @@ file { '/data/mongodb':
    force  => true,
    target => '/data/mongodb',
  }
- file {'/etc/mongodb.conf':
-   ensure  => present,
-   content => template('mongodconf.erb'),
-   mode    => 644,
- }
-
+  user {'mongodb':
+    ensure => 'present',
+  }
 }

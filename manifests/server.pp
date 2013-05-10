@@ -60,7 +60,7 @@ class pulp::server (
   $qpid_port         = '5672',
   $pulp_server_host  = 'localhost.localdomain',
   $migrate_attempts  = '3',
-  $migrate_wait_secs = '5',
+  $migrate_wait_secs = '60',
   $package_version   = 'installed',
   $different_location = false
 ) {
@@ -70,7 +70,7 @@ class pulp::server (
     ensure => $package_version,
   }
   #  if $different_location == true {
-          #include pulp::differentlocation,
+  include pulp::differentlocation
             #  Class['pulp::differentlocation'] ~> Class['start']
             #notify => Class['start']
            
@@ -93,12 +93,13 @@ class pulp::server (
       enable => $enabled,
     }
     service { 'mongod':
-      ensure => 'running',
-      enable => $enabled,
+      ensure  => 'running',
+      enable  => $enabled,
+      require => Class['pulp::differentlocation'],
     }
     service { 'qpidd':
       ensure => 'running',
-      enable => $eanbled,
+      enable => $enabled,
     }
     file { '/var/lib/pulp/init.flag':
       ensure  => 'file',
@@ -114,3 +115,4 @@ class pulp::server (
       try_sleep   => $migrate_wait_secs,
     }
   }
+
