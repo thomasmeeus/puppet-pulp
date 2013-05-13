@@ -19,6 +19,6 @@ class pulp::client (
   }
   service {'goferd':
     ensure  => 'running',
-    enable  => 'true',
+    enable  => true,
   }
 }

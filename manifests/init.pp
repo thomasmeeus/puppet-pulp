@@ -109,7 +109,7 @@ class pulp (
   $pulp_server_host  = $fqdn,
   $pulp_server_port  = '443',
   $repo_enabled      = false,
-  $mail_enabled      = 'false',
+  $mail_enabled      = false,
   $mail_host         = 'localhost.localdomain',
   $mail_host_port    = '25',
   $mail_from         = undef,

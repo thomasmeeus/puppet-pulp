@@ -3,7 +3,7 @@ class pulp::differentlocation {
     ensure => directory,
     owner  => 'mongodb',
     group  => 'root',
-    mode   => 755,
+    mode   => '0755',
   }
   file {'/var/lib/mongodb':
     ensure => 'link',
@@ -14,7 +14,7 @@ class pulp::differentlocation {
     ensure => directory,
     owner  => 'apache',
     group  => 'apache',
-    mode   => 755,
+    mode   => '0755',
   }
   file {'/var/lib/pulp':
     ensure => 'link',
