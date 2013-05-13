@@ -120,7 +120,7 @@ class pulp (
   $migrate_attempts  = '3',
   $migrate_wait_secs = '5',
   $package_version   = 'installed',
-  $different_location = false, 
+  $different_location = false
 
 ) {
 
