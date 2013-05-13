@@ -1,3 +1,4 @@
+# Class pulp::differentlocation
 class pulp::differentlocation {
   file { '/data/mongodb':
     ensure => directory,
