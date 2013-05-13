@@ -69,19 +69,7 @@ class pulp::server (
   package { $packagelist:
     ensure => $package_version,
   }
-  #  if $different_location == true {
   include pulp::differentlocation
-            #  Class['pulp::differentlocation'] ~> Class['start']
-            #notify => Class['start']
-           
-
-            #         notice("The value is: test")
-
-
-            # }
-            #}
-
-            # class { 'start':
     file { '/etc/pulp/server.conf':
       owner   => 'root',
       group   => 'root',
