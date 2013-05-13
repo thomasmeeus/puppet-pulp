@@ -112,7 +112,8 @@ class pulp::server (
       notify      => Service['httpd'],
       require     => [ Package['pulp-server'], Service['mongod']],
       tries       => $migrate_attempts,
-      try_sleep   => $migrate_wait_secs,
+      try_sleep   => '60',
+      #try_sleep   => $migrate_wait_secs,
     }
   }
 
