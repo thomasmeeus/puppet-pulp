@@ -50,7 +50,7 @@
 # == Todo
 #
 class pulp::server (
-  $mail_enabled      = 'false',
+  $mail_enabled      = false,
   $mail_host         = 'localhost.localdomain',
   $mail_host_port    = '25',
   $mail_from         = undef,
@@ -73,7 +73,7 @@ class pulp::server (
     file { '/etc/pulp/server.conf':
       owner   => 'root',
       group   => 'root',
-      mode    => 0644,
+      mode    => '0644',
       content => template('pulp/server.conf.erb'),
     }
     service { 'httpd':
