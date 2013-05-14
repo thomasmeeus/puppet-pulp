@@ -24,10 +24,10 @@ class Importer
 
   @feed_url = @hash[@config]["feed_url"] if @hash[@config]["feed_url"]
   @ssl_ca_cert = @hash[@config]["ssl_ca_cert"] if @hash[@config]["ssl_ca_cert"]
-  @ssl_client_cert = @hash[@config]["ssl_client_cert"] if @hash[@config]["ssl_client_cert"]  
-  @ssl_client_key = @hash[@config]["ssl_client_key"] if @hash[@config]["ssl_client_key"] 
+  @ssl_client_cert = @hash[@config]["ssl_client_cert"] if @hash[@config]["ssl_client_cert"]
+  @ssl_client_key = @hash[@config]["ssl_client_key"] if @hash[@config]["ssl_client_key"]
   end
-  
+
 end
 
 class Distributor
@@ -73,7 +73,7 @@ class Repository
   attr_accessor *$CONFIGURABLE_ATTRIBUTES
   def initialize(repohash)
   @hash = repohash
-  @id = @hash["id"] 
+  @id = @hash["id"]
   @display_name = @hash["display_name"] if @hash["display_name"]
   @description = @hash["description"] if @hash["description"]
   @repo_type = @hash["notes"]["_repo-type"]
@@ -95,7 +95,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
       manifest_importer = Importer.new(createimporterhash(), "ownhash")
       actual_distributor = Distributor.new(completehash, "completehash")
       manifest_distributor = Distributor.new(createdistributorhash("yum_distributor"), "ownhash")
-      
+
       check_repo = Hash.new
       actual_repository.instance_variables.each do |attribute_name|
         if attribute_name.to_s != "@hash"
@@ -111,7 +111,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
         end
       end
       checkimporter(check_importer)
-      
+
       check_importer = Hash.new
       manifest_importer.instance_variables.each do |attribute_name|
         if attribute_name.to_s != "@hash" && attribute_name.to_s != "@config"
@@ -142,7 +142,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     end
 
   end
-  
+
   def checkdistributor(checkdistributorhash)
     checkdistributorhash.each{ |key, value|
       if value == false
@@ -176,7 +176,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def comparevalue(actualrepo, manifestrepo)
     if actualrepo == manifestrepo
       return true
-    else 
+    else
       return false
     end
   end
@@ -198,7 +198,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     res = sock.start{|http| http.request(req)}
     return res
   end
-  
+
   def buildurl (pathvar)
     url = URI::HTTPS.build({:host =>  resource[:hostname] , :path => pathvar})
     return url
@@ -219,7 +219,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
 
   def getquery (pathvar, vars)
-    #url = buildurl(pathvar) 
+    #url = buildurl(pathvar)
     url = URI::HTTPS.build({:host =>  resource[:hostname] , :path => pathvar, :query => 'details=True'})
     req = Net::HTTP::Get.new(url.request_uri)
     res = query(req, url, vars)
@@ -233,7 +233,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     res = query(req, url, vars)
     return res
   end
-  
+
   def createrepohash
     sendHash = Hash.new
     sendHash["id"] = resource[:repoid]
@@ -250,15 +250,16 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash["importer_type_id"] = "yum_importer"
     sendHash["importer_config"] = Hash.new
     sendHash["importer_config"]["feed_url"] = resource[:feed]
-    sendHash["importer_config"]["ssl_ca_cert"] = resource[:feedcacert] if resource[:feedcacert]
-    sendHash["importer_config"]["ssl_client_cert"] = resource[:feedcert] if resource[:feedcert]
-    sendHash["importer_config"]["ssl_client_key"] = resource[:feedkey] if resource[:feedkey]
+    puts File.read(resource[:feedcacert])
+    sendHash["importer_config"]["ssl_ca_cert"] = File.read(resource[:feedcacert]) if resource[:feedcacert]
+    sendHash["importer_config"]["ssl_client_cert"] = File.read(resource[:feedcert]) if resource[:feedcert]
+    sendHash["importer_config"]["ssl_client_key"] = File.read(resource[:feedkey]) if resource[:feedkey]
     #sendHash["importer_config"]["num_threads"] = 3
     #sendHash["importer_config"]["newest"] = false
     #TODO add all importer configuration parameters
     return sendHash
   end
-  
+
   def creategetrepoinfohash
     sendHash = Hash.new
     sendHash["details"] = 'True'
@@ -296,12 +297,12 @@ Puppet::Type.type(:pulp).provide(:repository) do
       fail("there is no repository with the given ID")
     elsif res.code.to_i == 500
       fail("the importer raises an error during initialization")
-    else 
+    else
       fail("An unexpected test error occurred" + res.code )
     end
 
   end
-  
+
   def deletedistributor(id)
     pathvar = '/pulp/api/v2/repositories/' + id + '/distributors/' + id + '/'
     deletequery(pathvar)
@@ -322,17 +323,17 @@ Puppet::Type.type(:pulp).provide(:repository) do
       fail("there is no repository with the given ID" + res.code)
     elsif res.code.to_i == 500
       fail("the distributor raises an error during initialization")
-    else 
+    else
       fail("An unexpected test error occurred" + res.code )
     end
 
   end
-  
+
   def createrepo
     sendVar = createrepohash().to_json
     pathvar = '/pulp/api/v2/repositories/'
     res = postquery(pathvar, sendVar)
-    
+
     if res.code.to_i == 201
       #output: the repository was successfully created
       Puppet.debug("Repository created")
@@ -342,7 +343,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     elsif res.code.to_i == 409
       #output:  if there is already a repository with the given ID
       fail("There is already a repository with the given ID")
-    else 
+    else
       fail("An unexpected test error occurred" + res.code )
     end
   end
@@ -368,7 +369,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
       fail("One or more of the parameters is invalid")
     elsif res.code.to_i == 400
       fail("One or more of the parameters is invalid")
-    else 
+    else
       fail("An unexpected error occurred")
     end
   end
@@ -378,7 +379,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     res = deletequery(pathvar)
     if res.code.to_i ==202
       Puppet.debug("The update is executed and succesfull")
-    else 
+    else
       fail("An unexpected error occured")
     end
     if resource[:removeorphans] == true
@@ -391,6 +392,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
       end
     end
   end
-  
+
 end
 
