@@ -250,7 +250,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash["importer_type_id"] = "yum_importer"
     sendHash["importer_config"] = Hash.new
     sendHash["importer_config"]["feed_url"] = resource[:feed]
-    puts File.read(resource[:feedcacert])
     sendHash["importer_config"]["ssl_ca_cert"] = File.read(resource[:feedcacert]) if resource[:feedcacert]
     sendHash["importer_config"]["ssl_client_cert"] = File.read(resource[:feedcert]) if resource[:feedcert]
     sendHash["importer_config"]["ssl_client_key"] = File.read(resource[:feedkey]) if resource[:feedkey]
@@ -269,14 +268,14 @@ Puppet::Type.type(:pulp).provide(:repository) do
 
   def createdistributorhash(id)
     sendHash = Hash.new
-    sendHash["distributor_id"] = resource[:repoid]
+    sendHash["distributor_id"] = id
     sendHash["distributor_type_id"] = id
     sendHash["distributor_config"] = Hash.new
     sendHash["distributor_config"]["http"] = (resource[:servehttp]!=:false)
     sendHash["distributor_config"]["https"] = (resource[:servehttps]!=:false)
     sendHash["distributor_config"]["auth_ca"] = resource[:authca] if resource[:authca]
     sendHash["distributor_config"]["https_ca"] = resource[:httpsca] if resource[:httpsca]
-    sendHash["distributor_config"]["gpgkey"] = resource[:gpgkey] if resource[:gpgkey]
+    sendHash["distributor_config"]["gpgkey"] = File.read(resource[:gpgkey]) if resource[:gpgkey]
     sendHash["distributor_config"]["relative_url"] = resource[:repoid]
     return sendHash
   end
@@ -364,9 +363,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     if res.code.to_i == 200
       Puppet.debug("The update is executed and succesfull")
     elsif res.code.to_i == 202
-      fail("The update was postponed")
-    elsif res.code.to_i == 400
-      fail("One or more of the parameters is invalid")
+      notice("The update was postponed")
     elsif res.code.to_i == 400
       fail("One or more of the parameters is invalid")
     else
