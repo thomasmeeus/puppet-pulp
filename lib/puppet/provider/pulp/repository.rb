@@ -70,7 +70,7 @@ class Repository
     :id,
     :display_name,
     :description,
-    :repo_type
+    :repo_type,
     :relative_url
   ]
   attr_accessor *$CONFIGURABLE_ATTRIBUTES
