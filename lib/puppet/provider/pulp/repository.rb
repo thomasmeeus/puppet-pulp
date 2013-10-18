@@ -10,7 +10,6 @@ class Importer
   attr_accessor :ssl_ca_cert
   attr_accessor :ssl_client_cert
   attr_accessor :ssl_client_key
-  attr_accessor :relative_url
 
   def initialize(importerhash, type)
   if type == "completehash"
@@ -27,7 +26,6 @@ class Importer
   @ssl_ca_cert = @hash[@config]["ssl_ca_cert"] if @hash[@config]["ssl_ca_cert"]
   @ssl_client_cert = @hash[@config]["ssl_client_cert"] if @hash[@config]["ssl_client_cert"]
   @ssl_client_key = @hash[@config]["ssl_client_key"] if @hash[@config]["ssl_client_key"]
-  @relative_url = @hash[@config]["relative_url"] if @hash[@config]["relative_url"]
   end
 
 end
@@ -46,20 +44,20 @@ class Distributor
   def initialize(distributorhash, type)
   if type == "completehash"
     @hash = Hash[*distributorhash["distributors"]]
-    @id =  @hash["id"]
+    @id = @hash["id"]
     @config = "config"
   else
     @hash = distributorhash
     @config = "distributor_config"
-    @id =  @hash["distributor_id"]
+    @id = @hash["distributor_id"]
   end
 
-    @type_id =  @hash["distributor_type_id"]
+    @type_id = @hash["distributor_type_id"]
     @http = @hash[@config]["http"]
     @https = @hash[@config]["https"]
-    @auth_ca =  @hash[@config]["auth_ca"] #if @hash[@config]["auth_ca"]
+    @auth_ca = @hash[@config]["auth_ca"] #if @hash[@config]["auth_ca"]
     @https_ca = @hash[@config]["https_ca"] #if @hash[@config]["https_ca"]
-    @gpgkey =  @hash[@config]["gpgkey"]  #if @hash[@config]["gpgkey"]
+    @gpgkey = @hash[@config]["gpgkey"]  #if @hash[@config]["gpgkey"]
     @relative_url = @hash[@config]["relative_url"]
   end
 
@@ -70,8 +68,7 @@ class Repository
     :id,
     :display_name,
     :description,
-    :repo_type,
-    :relative_url
+    :repo_type
   ]
   attr_accessor *$CONFIGURABLE_ATTRIBUTES
   def initialize(repohash)
@@ -80,7 +77,6 @@ class Repository
   @display_name = @hash["display_name"] if @hash["display_name"]
   @description = @hash["description"] if @hash["description"]
   @repo_type = @hash["notes"]["_repo-type"]
-  @relative_url = @hash["relative_url"] if @hash["relative_url"]
   end
 
 end
@@ -257,7 +253,6 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash["importer_config"]["ssl_ca_cert"] = File.read(resource[:feedcacert]) if resource[:feedcacert]
     sendHash["importer_config"]["ssl_client_cert"] = File.read(resource[:feedcert]) if resource[:feedcert]
     sendHash["importer_config"]["ssl_client_key"] = File.read(resource[:feedkey]) if resource[:feedkey]
-    sendHash["importer_config"]["relative_url"] = File.read(resource[:relative_url]) if resource[:relative_url]
     #sendHash["importer_config"]["num_threads"] = 3
     #sendHash["importer_config"]["newest"] = false
     #TODO add all importer configuration parameters
@@ -396,4 +391,3 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
 
 end
-
