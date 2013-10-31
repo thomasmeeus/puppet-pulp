@@ -44,21 +44,21 @@ class Distributor
   def initialize(distributorhash, type)
   if type == "completehash"
     @hash = Hash[*distributorhash["distributors"]]
-    @id =  @hash["id"]
+    @id = @hash["id"]
     @config = "config"
   else
     @hash = distributorhash
     @config = "distributor_config"
-    @id =  @hash["distributor_id"]
+    @id = @hash["distributor_id"]
   end
 
-    @type_id =  @hash["distributor_type_id"]
+    @type_id = @hash["distributor_type_id"]
     @http = @hash[@config]["http"]
     @https = @hash[@config]["https"]
-    @auth_ca =  @hash[@config]["auth_ca"] #if @hash[@config]["auth_ca"]
+    @auth_ca = @hash[@config]["auth_ca"] #if @hash[@config]["auth_ca"]
     @https_ca = @hash[@config]["https_ca"] #if @hash[@config]["https_ca"]
-    @gpgkey =  @hash[@config]["gpgkey"]  #if @hash[@config]["gpgkey"]
-    @relative_url =@hash[@config]["relative_url"]
+    @gpgkey = @hash[@config]["gpgkey"]  #if @hash[@config]["gpgkey"]
+    @relative_url = @hash[@config]["relative_url"]
   end
 
 end
@@ -276,7 +276,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash["distributor_config"]["auth_ca"] = resource[:authca] if resource[:authca]
     sendHash["distributor_config"]["https_ca"] = resource[:httpsca] if resource[:httpsca]
     sendHash["distributor_config"]["gpgkey"] = File.read(resource[:gpgkey]) if resource[:gpgkey]
-    sendHash["distributor_config"]["relative_url"] = resource[:repoid]
+    sendHash["distributor_config"]["relative_url"] = resource[:relative_url]
     return sendHash
   end
 
@@ -391,4 +391,3 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
 
 end
-

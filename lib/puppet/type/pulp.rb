@@ -97,4 +97,7 @@ Puppet::Type.newtype(:pulp) do
     desc "Full path to the private key for feed_cert"
   end
 
+  newparam(:relative_url) do
+    desc "Relative URL for the repository."
+  end
 end
