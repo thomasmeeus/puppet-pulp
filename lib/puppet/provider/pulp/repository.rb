@@ -7,6 +7,8 @@ require 'json'
 class Importer
   attr_accessor :id
   attr_accessor :feed
+  attr_accessor :validate
+  attr_accessor :remove_missing
   attr_accessor :ssl_ca_cert
   attr_accessor :ssl_client_cert
   attr_accessor :ssl_client_key
@@ -23,6 +25,8 @@ class Importer
   end
 
   @feed = @hash[@config]["feed"] if @hash[@config]["feed"]
+  @validate = @hash[@config]["validate"] if @hash[@config]["validate"]
+  @remove_missing = @hash[@config]["remove_missing"] if @hash[@config]["remove_missing"]
   @ssl_ca_cert = @hash[@config]["ssl_ca_cert"] if @hash[@config]["ssl_ca_cert"]
   @ssl_client_cert = @hash[@config]["ssl_client_cert"] if @hash[@config]["ssl_client_cert"]
   @ssl_client_key = @hash[@config]["ssl_client_key"] if @hash[@config]["ssl_client_key"]
@@ -250,6 +254,8 @@ Puppet::Type.type(:pulp).provide(:repository) do
     sendHash["importer_type_id"] = "yum_importer"
     sendHash["importer_config"] = Hash.new
     sendHash["importer_config"]["feed"] = resource[:feed]
+    sendHash["importer_config"]["validate"] = resource[:validate]
+    sendHash["importer_config"]["remove_missing"] = resource[:remove_missing]
     sendHash["importer_config"]["ssl_ca_cert"] = File.read(resource[:feedcacert]) if resource[:feedcacert]
     sendHash["importer_config"]["ssl_client_cert"] = File.read(resource[:feedcert]) if resource[:feedcert]
     sendHash["importer_config"]["ssl_client_key"] = File.read(resource[:feedkey]) if resource[:feedkey]
