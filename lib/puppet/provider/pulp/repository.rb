@@ -91,7 +91,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
     res = getrepo(resource[:repoid])
     if res.code.to_i == 200
       #if the repository exist fetch the configuration
-      completehash =JSON.parse(res.body)
+      completehash = JSON.parse(res.body)
 
       actual_repository = Repository.new(completehash)
       manifest_repository = Repository.new(createrepohash())
