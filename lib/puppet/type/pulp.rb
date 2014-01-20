@@ -104,11 +104,9 @@ Puppet::Type.newtype(:pulp) do
 
   newparam(:validate) do
     desc "The size and checksum of each synchronized file willbe verified against the repo metadata"
-    defaultto(:false)
   end
 
   newparam(:remove_missing) do
     desc "Units that were previously in the external feed but are no longer found will be removed from the repository"
-    defaultto(:false)
   end
 end
