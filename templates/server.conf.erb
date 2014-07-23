@@ -15,7 +15,7 @@
 
 [database]
 name: pulp_database
-seeds: <%= mongodb_host %>:<%= mongodb_port %>
+seeds: <%= @mongodb_host %>:<%= @mongodb_port %>
 operation_retries: 2
 
 
@@ -32,8 +32,8 @@ operation_retries: 2
 # debugging_mode: boolean; toggles Pulp's debugging capabilities
 
 [server]
-<% if pulp_server_host %>
-server_name: <%= pulp_server_host %>
+<% if @pulp_server_host %>
+server_name: <%= @pulp_server_host %>
 <% end -%>
 key_url: /pulp/gpg
 ks_url: /pulp/ks
@@ -304,7 +304,7 @@ sync_weight: 2
 # enabled: boolean controls whether or not emails will be sent
 
 [email]
-host: <%= mail_host %>
-port: <%= mail_host_port %>
-from: <%= mail_from %>
-enabled: <%= mail_enabled %>
+host: <%= @mail_host %>
+port: <%= @mail_host_port %>
+from: <%= @mail_from %>
+enabled: <%= @mail_enabled %>
