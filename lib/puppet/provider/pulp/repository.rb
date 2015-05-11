@@ -47,7 +47,7 @@ class Distributor
 
   def initialize(distributorhash, type)
   if type == "completehash"
-    @hash = Hash[*distributorhash["distributors"]]
+    @hash = Hash[*distributorhash["distributors"]].keys[0]
     @id = @hash["id"]
     @config = "config"
   else
@@ -90,6 +90,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
   def exists?
     res = getrepo(resource[:repoid])
     if res.code.to_i == 200
+      Puppet.debug("found json hash for " + resource[:repoid])
       #if the repository exist fetch the configuration
       completehash = JSON.parse(res.body)
 
@@ -291,9 +292,9 @@ Puppet::Type.type(:pulp).provide(:repository) do
     pathvar = '/pulp/api/v2/repositories/' + resource[:repoid] + '/importers/'
     res = postquery(pathvar, sendVar)
 
-    if res.code.to_i == 201
+    if res.code.to_i == 202
       #output: the repository was successfully created
-      Puppet.debug("The importer was created succesfully")
+      Puppet.debug("The association was queued to be performed")
     elsif res.code.to_i == 400
       #output: if one or more of the parameters is invalid
       fail("one or more of the required parameters is missing, the importer type ID refers to a non-existent importer, or the importer indicates the supplied configuration is invalid")
@@ -323,9 +324,9 @@ Puppet::Type.type(:pulp).provide(:repository) do
     elsif res.code.to_i == 400
       #output: if one or more of the parameters is invalid
       fail("one or more of the required parameters is missing, the distributor type ID refers to a non-existent distributor, or the distributor indicates the supplied configuration is invalid" + res.body)
-    elsif res.code.to_i == 404
+    elsif res.code.to_i == 409
       #output:  if there is already a repository with the given ID
-      fail("there is no repository with the given ID" + res.code)
+      fail("there is already a repository with the given ID" + res.code)
     elsif res.code.to_i == 500
       fail("the distributor raises an error during initialization")
     else
