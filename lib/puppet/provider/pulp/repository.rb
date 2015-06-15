@@ -47,7 +47,7 @@ class Distributor
 
   def initialize(distributorhash, type)
   if type == "completehash"
-    @hash = Hash[*distributorhash["distributors"]].keys[0]
+    @hash = distributorhash["distributors"][0]
     @id = @hash["id"]
     @config = "config"
   else
