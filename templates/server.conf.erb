@@ -229,7 +229,7 @@ db_config: /etc/pulp/logging/db.cfg
 # unbind_timeout: messaging timeout in seconds for unbind requests
 
 [messaging]
-url: tcp://<%= qpid_server %>:<%= qpid_port %>
+url: tcp://<%= @qpid_server %>:<%= @qpid_port %>
 cacert: /etc/pki/qpid/ca/ca.crt
 clientcert: /etc/pki/qpid/client/client.pem
 topic_exchange: 'amq.topic'
