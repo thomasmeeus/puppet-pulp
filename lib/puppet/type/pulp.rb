@@ -114,12 +114,12 @@ Puppet::Type.newtype(:pulp) do
 
   newparam(:retain_old_count) do
     desc "Number of non-latest versions of a unit to leave in a repository"
-    defaultto(0)
+    defaultto(3)
   end
 
   newparam(:remove_old) do
     desc "Option to remove old packages"
     newvalues(:true, :false)
-    defaultto(:false)
+    defaultto(:true)
   end
 end
