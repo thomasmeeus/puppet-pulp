@@ -163,6 +163,7 @@ Puppet::Type.type(:pulp).provide(:repository) do
   end
 
   def checkimporter(checkimporterhash)
+    checkimporterhash.delete("@remove_missing")
     checkimporterhash.each{ |key, value|
       if value == false
         puts "update importer"
