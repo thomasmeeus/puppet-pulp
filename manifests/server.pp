@@ -94,8 +94,8 @@ class pulp::server (
     enable => $enabled,
   }
   file { '/var/lib/pulp/init.flag':
-    ensure  => 'file',
-    notify  => Exec['manage_pulp_databases']
+    ensure => 'file',
+    notify => Exec['manage_pulp_databases']
   }
   exec { 'manage_pulp_databases':
     command     => '/usr/bin/pulp-manage-db ',

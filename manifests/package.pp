@@ -13,8 +13,8 @@ class pulp::package {
   }
 
   exec { 'pulpinit':
-    command     => '/etc/init.d/pulp-server init && touch /var/lib/pulp/init.flag',
-    creates     => '/var/lib/pulp/init.flag',
-    require     => Package['pulp'],
+    command => '/etc/init.d/pulp-server init && touch /var/lib/pulp/init.flag',
+    creates => '/var/lib/pulp/init.flag',
+    require => Package['pulp'],
   }
 }
