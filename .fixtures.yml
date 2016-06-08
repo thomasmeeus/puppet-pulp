@@ -1,5 +1,0 @@
-fixtures:
-  symlinks:
-    "pulp": "#{source_dir}"
-
-
