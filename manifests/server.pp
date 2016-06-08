@@ -87,7 +87,7 @@ class pulp::server (
   service { 'mongod':
     ensure  => 'running',
     enable  => $enabled,
-    require => File['/var/lib/mongodb'],
+    require => File['/var/lib/pulp'],
   }
   service { 'qpidd':
     ensure => 'running',
