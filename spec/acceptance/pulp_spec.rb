@@ -10,7 +10,7 @@ describe 'pulp' do
            pulp_server  => true,
            pulp_admin   => true,
            repo_enabled => true,
-           different_location = false
+           different_location => false
          }
       EOS
 
