@@ -69,39 +69,43 @@ class pulp::server (
   package { $packagelist:
     ensure => $package_version,
   }
-  include pulp::differentlocation
-    file { '/etc/pulp/server.conf':
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0644',
-      content => template('pulp/server.conf.erb'),
-    }
-    service { 'httpd':
-      ensure => 'running',
-      enable => $enabled,
-    }
-    service { 'mongod':
-      ensure  => 'running',
-      enable  => $enabled,
-      require => Class['pulp::differentlocation'],
-    }
-    service { 'qpidd':
-      ensure => 'running',
-      enable => $enabled,
-    }
-    file { '/var/lib/pulp/init.flag':
-      ensure  => 'file',
-      notify  => Exec['manage_pulp_databases']
-    }
-    exec { 'manage_pulp_databases':
-      command     => '/usr/bin/pulp-manage-db ',
-      refreshonly => true,
-      creates     => '/var/lib/pulp/.inited',
-      notify      => Service['httpd'],
-      require     => [ Package['pulp-server'], Service['mongod']],
-      tries       => $migrate_attempts,
-      try_sleep   => '60',
-      #try_sleep   => $migrate_wait_secs,
-    }
+
+  if $differentlocation == true {
+    include pulp::differentlocation
   }
+
+  file { '/etc/pulp/server.conf':
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
+    content => template('pulp/server.conf.erb'),
+  }
+  service { 'httpd':
+    ensure => 'running',
+    enable => $enabled,
+  }
+  service { 'mongod':
+    ensure  => 'running',
+    enable  => $enabled,
+    require => File['/var/lib/mongodb'],
+  }
+  service { 'qpidd':
+    ensure => 'running',
+    enable => $enabled,
+  }
+  file { '/var/lib/pulp/init.flag':
+    ensure  => 'file',
+    notify  => Exec['manage_pulp_databases']
+  }
+  exec { 'manage_pulp_databases':
+    command     => '/usr/bin/pulp-manage-db ',
+    refreshonly => true,
+    creates     => '/var/lib/pulp/.inited',
+    notify      => Service['httpd'],
+    require     => [ Package['pulp-server'], Service['mongod']],
+    tries       => $migrate_attempts,
+    try_sleep   => '60',
+    #try_sleep   => $migrate_wait_secs,
+  }
+}
 
