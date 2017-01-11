@@ -33,7 +33,7 @@
 #
 # [*migrate_attempts*]
 #   Maximum number of attempts to execute pulp-manage-db to initialize the new
-#   types in Pulp’s database.
+#   types in Pulp's database.
 #
 # [*migrate_wait_secs*]
 #   Seconds to wait between retry attempts to execute pulp-manage-db.

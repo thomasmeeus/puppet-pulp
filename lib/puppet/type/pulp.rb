@@ -79,11 +79,11 @@ Puppet::Type.newtype(:pulp) do
   end
 
   newparam(:httpsca) do
-    desc "CA certificate used to sign the SSL certificate the server is using to host this repository. This certificate will be made available to bound consumers so they can verify the server’s identity. The value to this option must be the full path to the certificate."
+    desc "CA certificate used to sign the SSL certificate the server is using to host this repository. This certificate will be made available to bound consumers so they can verify the server's identity. The value to this option must be the full path to the certificate."
   end
 
   newparam(:authca) do
-    desc "CA certificate that was used to sign the certificate specified in auth-cert. The server will use this CA to verify that the incoming request’s client certificate is signed by the correct source and is not forged. The value to this option must be the full path to the CA certificate file."
+    desc "CA certificate that was used to sign the certificate specified in auth-cert. The server will use this CA to verify that the incoming request's client certificate is signed by the correct source and is not forged. The value to this option must be the full path to the CA certificate file."
   end
 
   newparam(:feedcacert) do
